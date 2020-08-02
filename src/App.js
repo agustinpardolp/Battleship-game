@@ -1,25 +1,20 @@
+
 import React from "react";
-import { Route, Switch, Redirect } from "react-router-dom";
-import TopBar from "./components/topBar";
-import Home from "./screens/Home/";
-import Game from "./screens/Game/";
-import Result from "./screens/Result/";
-
+import { BrowserRouter as Router, Route } from "react-router-dom";
+import { Provider } from "react-redux";
+import { store } from "./redux/store";
+import Main from "../src/screens/";
+import 'semantic-ui-css/semantic.min.css'
 import "./App.css";
-
 function App() {
   return (
-    <div className="App">
-      <div className="App-header">
-        <TopBar />
-        <Switch>
-          <Route exact path="/home" component={Home} />
-          <Route exact path="/game" component={Game} />
-          <Route exact path="/result" component={Result} />
-          <Redirect from = "/" to= "/home"/>
-        </Switch>
-      </div>
-    </div>
+    <Provider store={store}>
+      <Router>
+        <Route>
+          <Main/>
+        </Route>
+      </Router>
+    </Provider>
   );
 }
 
