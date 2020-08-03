@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-expressions */
 import React, { useState } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
@@ -169,8 +170,15 @@ const numberRows = [
   },
 ];
 
-const Board = ({ handleOptions, selectedOptions, orientation, shipType }) => {
+const Board = ({
+  handleOptions,
+  selectedOptions,
+  orientation,
+  shipType,
+  shipBorder,
+}) => {
   let selectedShips = Object.values(selectedOptions);
+  let selectedBorderShips = Object.values(shipBorder);
   let totalValues = [
     ...selectedShips[0],
     ...selectedShips[1],
@@ -178,34 +186,63 @@ const Board = ({ handleOptions, selectedOptions, orientation, shipType }) => {
     ...selectedShips[3],
     ...selectedShips[4],
   ];
+  let totalBorderShipValues = [
+    ...selectedBorderShips[0],
+    ...selectedBorderShips[1],
+    ...selectedBorderShips[2],
+    ...selectedBorderShips[3],
+    ...selectedBorderShips[4],
+  ];
+
   const handlerSelectedShip = ({ index, data }) => {
     let values =
       orientation === "vertical"
         ? numberRows.slice(index, index + shipType.length)
         : letterColumns.slice(index, index + shipType.length);
-    if (values.length >= shipType.length) {
-      let shipsValuesArray = values.map((value) => {
-        return orientation === "vertical"
-          ? `${data.name}${value.name}`
-          : `${value.name}${data.name}`;
-      });
-      let waterArray = values
-        .map((value) => {
-          let result = [
-            `${data.nextValue}${value.name}`,
-            `${data.prevValue}${value.name},`,
-          ];
-          return result;
-        })
-        .reduce((a, b) => a + b)
-        .split(",");
-      waterArray = [
-        ...waterArray,
-        `${values[0].prevValue}${data.name}`,
-        `${values[values.length - 1].nextValue}${data.name},`,
-      ];
 
-      return handleOptions(shipsValuesArray, waterArray);
+    if (values.length >= shipType.length) {
+      let shipArray = [];
+      let borderArray = [];
+
+      values.forEach((value) => {
+        if (orientation === "vertical") {
+          shipArray.push(`${data.name}${value.name}`);
+          borderArray.push(
+            `${data.nextValue}${value.name}`,
+            `${data.prevValue}${value.name}`
+          );
+        } else {
+          shipArray.push(`${value.name}${data.name}`);
+          borderArray.push(
+            `${value.name}${data.nextValue}`,
+            `${value.name}${data.prevValue}`
+          );
+        }
+      });
+
+      if (orientation === "horizontal") {
+        borderArray = [
+          ...borderArray,
+          `${values[0].prevValue}${data.name}`,
+          `${values[values.length - 1].nextValue}${data.name}`,
+          `${values[0].prevValue}${data.nextValue}`,
+          `${values[0].prevValue}${data.prevValue}`,
+          `${values[values.length - 1].nextValue}${data.nextValue}`,
+          `${values[values.length - 1].nextValue}${data.prevValue}`,
+        ];
+      } else {
+        borderArray = [
+          ...borderArray,
+          `${data.name}${values[0].prevValue}`,
+          `${data.name}${values[values.length - 1].nextValue}`,
+          `${data.nextValue}${values[0].prevValue}`,
+          `${data.prevValue}${values[0].prevValue}`,
+          `${data.nextValue}${values[values.length - 1].nextValue}`,
+          `${data.prevValue}${values[values.length - 1].nextValue}`,
+        ];
+      }
+
+      return handleOptions(shipArray, borderArray, totalBorderShipValues || []);
     }
   };
 

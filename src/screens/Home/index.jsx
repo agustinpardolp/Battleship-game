@@ -26,11 +26,6 @@ const Home = ({
   letterColumns,
   numberRows,
 }) => {
-  // let [tempKeyArray, setTempKeyArray] = useState([]);
-  // let [tempCellArray, setTempCellArray] = useState([]);
-
-  let [tempKeyArray, setTempKeyArray] = useState([]);
-  let [tempCellSelected, setTempCellSelected] = useState({});
   let [selectedShipType, setSelectedShipType] = useState({
     "Cruisers-1": [],
     "Cruisers-2": [],
@@ -38,41 +33,53 @@ const Home = ({
     Submarine: [],
     Carrier: [],
   });
-  let [waterArray, setWaterArray] = useState([])
+  let [borderFromSelectedShip, setBorderFromSelectedShip] = useState({
+    "Cruisers-1": [],
+    "Cruisers-2": [],
+    "Cruisers-3": [],
+    Submarine: [],
+    Carrier: [],
+  });
+
   let [shipType, setShipType] = useState("");
   let [orientation, setOrientation] = useState("vertical");
 
   const handleUserChange = (e) => {
-    console.log(e);
+    // console.log(e);
   };
-  const handleInitialOptions = (cellValue, waterValues) => {
-    
-    
-    // console.log(
-    //   waterArray.find((element) => {
-    //     console.log(element, cellValue[0]);
-    //     return element === cellValue[0];
-    //   })
-    // );
-    // // console.log(waterArray.find(cellValue[0]), cellValue)
+
+  const handleInitialOptions = (
+    cellValue,
+    borderValues,
+    totalBorderShipValues
+  ) => {
     if (cellValue && !selectedShipType[shipType.name].length) {
       if (
-        waterArray.find((element) => element === cellValue[0]) === undefined
+        totalBorderShipValues.find(
+          (element) =>
+            element === cellValue[0] ||
+            element === cellValue[cellValue.length - 1]
+        ) === undefined
       ) {
         setSelectedShipType({
           ...selectedShipType,
           [shipType.name]: cellValue,
         });
-        setWaterArray([...waterArray, ...waterValues ])
+        setBorderFromSelectedShip({
+          ...borderFromSelectedShip,
+          [shipType.name]: borderValues,
+        });
       }
-    } 
-    else {
+    } else {
       setSelectedShipType({
         ...selectedShipType,
         [shipType.name]: [],
       });
+      setBorderFromSelectedShip({
+        ...borderFromSelectedShip,
+        [shipType.name]: [],
+      });
     }
-    console.log(waterArray);
   };
 
   const handleDropdownChange = (event, { value }) => {
@@ -86,6 +93,7 @@ const Home = ({
       <Board
         handleOptions={handleInitialOptions}
         selectedOptions={selectedShipType}
+        shipBorder={borderFromSelectedShip}
         shipType={shipType}
         orientation={orientation}
       />
