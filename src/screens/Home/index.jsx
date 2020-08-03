@@ -17,7 +17,7 @@ const StyledInputContainer = styled.div`
     display: grid;
     grid-template-rows: 20% 15% 15% 20%;
     align-items: center;
-    height:100%;
+    height: 100%;
   }
 `;
 const Home = ({
@@ -31,49 +31,72 @@ const Home = ({
 
   let [tempKeyArray, setTempKeyArray] = useState([]);
   let [tempCellSelected, setTempCellSelected] = useState({});
+  let [selectedShipType, setSelectedShipType] = useState({
+    "Cruisers-1": [],
+    "Cruisers-2": [],
+    "Cruisers-3": [],
+    Submarine: [],
+    Carrier: [],
+  });
+  let [waterArray, setWaterArray] = useState([])
+  let [shipType, setShipType] = useState("");
+  let [orientation, setOrientation] = useState("vertical");
 
   const handleUserChange = (e) => {
     console.log(e);
   };
-  const handleInitialOptions = (cellValue) => {
-    if (!tempKeyArray.length) {
-      setTempCellSelected(cellValue);
-      Object.keys(cellValue);
-      setTempKeyArray(Object.keys(cellValue));
-      console.log(cellValue, tempKeyArray);
-    } else {
-      if (tempKeyArray.includes(cellValue.name)) {
-        tempKeyArray.filter((value) => value !== cellValue.name);
-        let tempObjet = { ...tempCellSelected };
-        delete tempObjet[cellValue.name];
-        setTempCellSelected(tempObjet);
-      } else {
-        let tempObjet = { ...tempCellSelected, cellValue };
+  const handleInitialOptions = (cellValue, waterValues) => {
+    
+    
+    // console.log(
+    //   waterArray.find((element) => {
+    //     console.log(element, cellValue[0]);
+    //     return element === cellValue[0];
+    //   })
+    // );
+    // // console.log(waterArray.find(cellValue[0]), cellValue)
+    if (cellValue && !selectedShipType[shipType.name].length) {
+      if (
+        waterArray.find((element) => element === cellValue[0]) === undefined
+      ) {
+        setSelectedShipType({
+          ...selectedShipType,
+          [shipType.name]: cellValue,
+        });
+        setWaterArray([...waterArray, ...waterValues ])
       }
+    } 
+    else {
+      setSelectedShipType({
+        ...selectedShipType,
+        [shipType.name]: [],
+      });
     }
-
-    // if (tempKeyArray.includes(cellValue.name)) {
-    //   tempKeyArray.filter((value) => value !== cellValue.name);
-    //   setTempKeyArray([...tempKeyArray.filter((value) => value !== cellValue.name)]);
-    //   setTempCellArray([...tempCellArray.filter((value) => value.name !== cellValue.name)])
-    // } else {
-    //   if (tempCellArray.find(cell=> cell.name === cellValue.))
-    //   setTempKeyArray([...tempKeyArray, cellValue.name]);
-    //   setTempCellArray([...tempCellArray, cellValue])
-    // }
+    console.log(waterArray);
   };
-  // console.log(tempCellArray)
+
+  const handleDropdownChange = (event, { value }) => {
+    setShipType(value);
+  };
+  const handleOrientationChange = (event, { value }) => {
+    setOrientation(value);
+  };
   return (
     <ContentWrapper>
       <Board
         handleOptions={handleInitialOptions}
-        selectedOptions={tempKeyArray}
+        selectedOptions={selectedShipType}
+        shipType={shipType}
+        orientation={orientation}
       />
       <StyledInputContainer>
         <section>
           <Input handleChange={handleUserChange} label={"Player Name"} />
-          <Dropdown />
-          <Checkbox />
+          <Dropdown handleChange={handleDropdownChange} />
+          <Checkbox
+            handleChange={handleOrientationChange}
+            value={orientation}
+          />
           <Button />
         </section>
       </StyledInputContainer>
