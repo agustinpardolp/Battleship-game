@@ -17,7 +17,7 @@ const StyledInputContainer = styled.div`
     display: grid;
     grid-template-rows: 20% 15% 15% 20%;
     align-items: center;
-    height:100%;
+    height: 100%;
   }
 `;
 const Home = ({
@@ -26,54 +26,85 @@ const Home = ({
   letterColumns,
   numberRows,
 }) => {
-  // let [tempKeyArray, setTempKeyArray] = useState([]);
-  // let [tempCellArray, setTempCellArray] = useState([]);
+  let [selectedShipType, setSelectedShipType] = useState({
+    "Cruisers-1": [],
+    "Cruisers-2": [],
+    "Cruisers-3": [],
+    Submarine: [],
+    Carrier: [],
+  });
+  let [borderFromSelectedShip, setBorderFromSelectedShip] = useState({
+    "Cruisers-1": [],
+    "Cruisers-2": [],
+    "Cruisers-3": [],
+    Submarine: [],
+    Carrier: [],
+  });
 
-  let [tempKeyArray, setTempKeyArray] = useState([]);
-  let [tempCellSelected, setTempCellSelected] = useState({});
+  let [shipType, setShipType] = useState("");
+  let [orientation, setOrientation] = useState("vertical");
 
   const handleUserChange = (e) => {
-    console.log(e);
+    // console.log(e);
   };
-  const handleInitialOptions = (cellValue) => {
-    if (!tempKeyArray.length) {
-      setTempCellSelected(cellValue);
-      Object.keys(cellValue);
-      setTempKeyArray(Object.keys(cellValue));
-      console.log(cellValue, tempKeyArray);
-    } else {
-      if (tempKeyArray.includes(cellValue.name)) {
-        tempKeyArray.filter((value) => value !== cellValue.name);
-        let tempObjet = { ...tempCellSelected };
-        delete tempObjet[cellValue.name];
-        setTempCellSelected(tempObjet);
-      } else {
-        let tempObjet = { ...tempCellSelected, cellValue };
-      }
-    }
 
-    // if (tempKeyArray.includes(cellValue.name)) {
-    //   tempKeyArray.filter((value) => value !== cellValue.name);
-    //   setTempKeyArray([...tempKeyArray.filter((value) => value !== cellValue.name)]);
-    //   setTempCellArray([...tempCellArray.filter((value) => value.name !== cellValue.name)])
-    // } else {
-    //   if (tempCellArray.find(cell=> cell.name === cellValue.))
-    //   setTempKeyArray([...tempKeyArray, cellValue.name]);
-    //   setTempCellArray([...tempCellArray, cellValue])
-    // }
+  const handleInitialOptions = (
+    cellValue,
+    borderValues,
+    totalBorderShipValues
+  ) => {
+    if (cellValue && !selectedShipType[shipType.name].length) {
+      if (
+        totalBorderShipValues.find(
+          (element) =>
+            element === cellValue[0] ||
+            element === cellValue[cellValue.length - 1]
+        ) === undefined
+      ) {
+        setSelectedShipType({
+          ...selectedShipType,
+          [shipType.name]: cellValue,
+        });
+        setBorderFromSelectedShip({
+          ...borderFromSelectedShip,
+          [shipType.name]: borderValues,
+        });
+      }
+    } else {
+      setSelectedShipType({
+        ...selectedShipType,
+        [shipType.name]: [],
+      });
+      setBorderFromSelectedShip({
+        ...borderFromSelectedShip,
+        [shipType.name]: [],
+      });
+    }
   };
-  // console.log(tempCellArray)
+
+  const handleDropdownChange = (event, { value }) => {
+    setShipType(value);
+  };
+  const handleOrientationChange = (event, { value }) => {
+    setOrientation(value);
+  };
   return (
     <ContentWrapper>
       <Board
         handleOptions={handleInitialOptions}
-        selectedOptions={tempKeyArray}
+        selectedOptions={selectedShipType}
+        shipBorder={borderFromSelectedShip}
+        shipType={shipType}
+        orientation={orientation}
       />
       <StyledInputContainer>
         <section>
           <Input handleChange={handleUserChange} label={"Player Name"} />
-          <Dropdown />
-          <Checkbox />
+          <Dropdown handleChange={handleDropdownChange} />
+          <Checkbox
+            handleChange={handleOrientationChange}
+            value={orientation}
+          />
           <Button />
         </section>
       </StyledInputContainer>

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-expressions */
 import React, { useState } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
@@ -47,136 +48,204 @@ const letterColumns = [
   {
     name: "A",
     position: 0,
-    prevLetter: null,
-    nextLetter: "B",
+    prevValue: null,
+    nextValue: "B",
   },
   {
     name: "B",
     position: 1,
-    prevLetter: "A",
-    nextLetter: "C",
+    prevValue: "A",
+    nextValue: "C",
   },
   {
     name: "C",
     position: 2,
-    prevLetter: "B",
-    nextLetter: "D",
+    prevValue: "B",
+    nextValue: "D",
   },
   {
     name: "D",
     position: 3,
-    prevLetter: "C",
-    nextLetter: "E",
+    prevValue: "C",
+    nextValue: "E",
   },
   {
     name: "E",
     position: 4,
-    prevLetter: "D",
-    nextLetter: "F",
+    prevValue: "D",
+    nextValue: "F",
   },
   {
     name: "F",
     position: 5,
-    prevLetter: "E",
-    nextLetter: "G",
+    prevValue: "E",
+    nextValue: "G",
   },
   {
     name: "G",
     position: 6,
-    prevLetter: "F",
-    nextLetter: "H",
+    prevValue: "F",
+    nextValue: "H",
   },
   {
     name: "H",
     position: 7,
-    prevLetter: "G",
-    nextLetter: "I",
+    prevValue: "G",
+    nextValue: "I",
   },
   {
     name: "I",
     position: 8,
-    prevLetter: "H",
-    nextLetter: "J",
+    prevValue: "H",
+    nextValue: "J",
   },
   {
     name: "J",
     position: 9,
-    prevLetter: "I",
-    nextLetter: null,
+    prevValue: "I",
+    nextValue: null,
   },
 ];
 const numberRows = [
   {
     name: 1,
     position: 0,
-    prevNumber: null,
-    nextNumber: 2,
+    prevValue: null,
+    nextValue: 2,
   },
   {
     name: 2,
     position: 1,
-    prevNumber: 1,
-    nextNumber: 3,
+    prevValue: 1,
+    nextValue: 3,
   },
   {
     name: 3,
     position: 2,
-    prevNumber: 2,
-    nextNumber: 4,
+    prevValue: 2,
+    nextValue: 4,
   },
   {
     name: 4,
     position: 3,
-    prevNumber: 3,
-    nextNumber: 5,
+    prevValue: 3,
+    nextValue: 5,
   },
   {
     name: 5,
     position: 4,
-    prevNumber: 4,
-    nextNumber: 6,
+    prevValue: 4,
+    nextValue: 6,
   },
   {
     name: 6,
     position: 5,
-    prevNumber: 5,
-    nextNumber: 7,
+    prevValue: 5,
+    nextValue: 7,
   },
   {
     name: 7,
     position: 6,
-    prevNumber: 6,
-    nextNumber: 8,
+    prevValue: 6,
+    nextValue: 8,
   },
 
   {
     name: 8,
     position: 7,
-    prevNumber: 7,
-    nextNumber: 9,
+    prevValue: 7,
+    nextValue: 9,
   },
   {
     name: 9,
     position: 8,
-    prevNumber: 8,
-    nextNumber: 10,
+    prevValue: 8,
+    nextValue: 10,
   },
   {
     name: 10,
     position: 9,
-    prevNumber: 9,
-    nextNumber: null,
+    prevValue: 9,
+    nextValue: null,
   },
 ];
 
-const Board = ({ handleOptions, selectedOptions }) => {
-  let [selectedValue, setSelectedValue] = useState("");
-  const boardData = []
+const Board = ({
+  handleOptions,
+  selectedOptions,
+  orientation,
+  shipType,
+  shipBorder,
+}) => {
+  let selectedShips = Object.values(selectedOptions);
+  let selectedBorderShips = Object.values(shipBorder);
+  let totalValues = [
+    ...selectedShips[0],
+    ...selectedShips[1],
+    ...selectedShips[2],
+    ...selectedShips[3],
+    ...selectedShips[4],
+  ];
+  let totalBorderShipValues = [
+    ...selectedBorderShips[0],
+    ...selectedBorderShips[1],
+    ...selectedBorderShips[2],
+    ...selectedBorderShips[3],
+    ...selectedBorderShips[4],
+  ];
 
-  const handleSelectValue = (value) => {
-    setSelectedValue(value);
+  const handlerSelectedShip = ({ index, data }) => {
+    let values =
+      orientation === "vertical"
+        ? numberRows.slice(index, index + shipType.length)
+        : letterColumns.slice(index, index + shipType.length);
+
+    if (values.length >= shipType.length) {
+      let shipArray = [];
+      let borderArray = [];
+
+      values.forEach((value) => {
+        if (orientation === "vertical") {
+          shipArray.push(`${data.name}${value.name}`);
+          borderArray.push(
+            `${data.nextValue}${value.name}`,
+            `${data.prevValue}${value.name}`
+          );
+        } else {
+          shipArray.push(`${value.name}${data.name}`);
+          borderArray.push(
+            `${value.name}${data.nextValue}`,
+            `${value.name}${data.prevValue}`
+          );
+        }
+      });
+
+      if (orientation === "horizontal") {
+        borderArray = [
+          ...borderArray,
+          `${values[0].prevValue}${data.name}`,
+          `${values[values.length - 1].nextValue}${data.name}`,
+          `${values[0].prevValue}${data.nextValue}`,
+          `${values[0].prevValue}${data.prevValue}`,
+          `${values[values.length - 1].nextValue}${data.nextValue}`,
+          `${values[values.length - 1].nextValue}${data.prevValue}`,
+        ];
+      } else {
+        borderArray = [
+          ...borderArray,
+          `${data.name}${values[0].prevValue}`,
+          `${data.name}${values[values.length - 1].nextValue}`,
+          `${data.nextValue}${values[0].prevValue}`,
+          `${data.prevValue}${values[0].prevValue}`,
+          `${data.nextValue}${values[values.length - 1].nextValue}`,
+          `${data.prevValue}${values[values.length - 1].nextValue}`,
+        ];
+      }
+
+      return handleOptions(shipArray, borderArray, totalBorderShipValues || []);
+    }
   };
-  console.log("BOARDA", boardData)
+
   return (
     <MainContainer>
       <StyledMainSquare>
@@ -192,37 +261,39 @@ const Board = ({ handleOptions, selectedOptions }) => {
             })}
           </thead>
           <tbody>
-            {numberRows.map((number) => {
+            {numberRows.map((number, numberIndex) => {
               return (
                 <tr>
                   {number.name}
-                  {letterColumns.map((letter, i) => {
-                  
+                  {letterColumns.map((letter, letterIndex) => {
                     let value = {
                       name: `${letter.name}${number.name}`,
                       positionValue: [`${letter.name}`, number.name],
                       prevValue: [
-                        `${letter.prevLetter}${number.name}`,
-                        `${letter.name}${number.prevNumber}`,
+                        `${letter.prevValue}${number.name}`,
+                        `${letter.name}${number.prevValue}`,
                       ],
                       nextValue: [
-                        `${letter.nextLetter}${number.name}`,
-                        `${letter.name}${number.nextNumber}`,
+                        `${letter.nextValue}${number.name}`,
+                        `${letter.name}${number.nextValue}`,
                       ],
                     };
-                    boardData.push(value)
-                    // debugger;
+
+                    let index =
+                      orientation === "horizontal"
+                        ? { index: letterIndex, data: number }
+                        : { index: numberIndex, data: letter };
+
                     return (
                       <StyledTD
                         active={
-                          selectedOptions &&
-                          selectedOptions.indexOf(value.name) != -1
+                          totalValues && totalValues.indexOf(value.name) !== -1
                             ? "blue"
                             : null
                         }
                         value={value}
                         onClick={() => {
-                          handleOptions(value);
+                          handlerSelectedShip(index);
                         }}
                       >
                         <span></span>
