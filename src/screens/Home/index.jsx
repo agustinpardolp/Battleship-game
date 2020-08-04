@@ -68,7 +68,56 @@ const Home = ({
     ...selectedBorderShips[3],
     ...selectedBorderShips[4],
   ];
+  const valuesShipArrayCreator = (
+    values,
+    orientation,
+    orientationIndex,
+    data
+  ) => {
+    let shipArray = [];
+    let borderArray = [];
 
+    values.forEach((value) => {
+      if (orientation[orientationIndex] === "vertical") {
+        shipArray.push(`${data.name}${value.name}`);
+        borderArray.push(
+          `${data.nextValue}${value.name}`,
+          `${data.prevValue}${value.name}`
+        );
+      } else {
+        shipArray.push(`${value.name}${data.name}`);
+        borderArray.push(
+          `${value.name}${data.nextValue}`,
+          `${value.name}${data.prevValue}`
+        );
+      }
+    });
+    return { shipArray, borderArray };
+  };
+
+  const borderShipArrayCreator = (borderArray, values, data) => {
+    if (orientation === "horizontal") {
+      return (borderArray = [
+        ...borderArray,
+        `${values[0].prevValue}${data.name}`,
+        `${values[values.length - 1].nextValue}${data.name}`,
+        `${values[0].prevValue}${data.nextValue}`,
+        `${values[0].prevValue}${data.prevValue}`,
+        `${values[values.length - 1].nextValue}${data.nextValue}`,
+        `${values[values.length - 1].nextValue}${data.prevValue}`,
+      ]);
+    } else {
+      return (borderArray = [
+        ...borderArray,
+        `${data.name}${values[0].prevValue}`,
+        `${data.name}${values[values.length - 1].nextValue}`,
+        `${data.nextValue}${values[0].prevValue}`,
+        `${data.prevValue}${values[0].prevValue}`,
+        `${data.nextValue}${values[values.length - 1].nextValue}`,
+        `${data.prevValue}${values[values.length - 1].nextValue}`,
+      ]);
+    }
+  };
   const setCPUInitialValues = () => {
     let orientation = ["horizontal", "vertical"];
     let shipLocalState = {
@@ -113,46 +162,14 @@ const Home = ({
         shipOptions[i].value.length &&
         values.length >= shipOptions[i].value.length
       ) {
-        let shipArray = [];
-        let borderArray = [];
+        let { shipArray, borderArray } = valuesShipArrayCreator(
+          values,
+          orientation,
+          orientationIndex,
+          data
+        );
+        borderArray = borderShipArrayCreator(borderArray, values, data);
 
-        values.forEach((value) => {
-          if (orientation[orientationIndex] === "vertical") {
-            shipArray.push(`${data.name}${value.name}`);
-            borderArray.push(
-              `${data.nextValue}${value.name}`,
-              `${data.prevValue}${value.name}`
-            );
-          } else {
-            shipArray.push(`${value.name}${data.name}`);
-            borderArray.push(
-              `${value.name}${data.nextValue}`,
-              `${value.name}${data.prevValue}`
-            );
-          }
-        });
-
-        if (orientation === "horizontal") {
-          borderArray = [
-            ...borderArray,
-            `${values[0].prevValue}${data.name}`,
-            `${values[values.length - 1].nextValue}${data.name}`,
-            `${values[0].prevValue}${data.nextValue}`,
-            `${values[0].prevValue}${data.prevValue}`,
-            `${values[values.length - 1].nextValue}${data.nextValue}`,
-            `${values[values.length - 1].nextValue}${data.prevValue}`,
-          ];
-        } else {
-          borderArray = [
-            ...borderArray,
-            `${data.name}${values[0].prevValue}`,
-            `${data.name}${values[values.length - 1].nextValue}`,
-            `${data.nextValue}${values[0].prevValue}`,
-            `${data.prevValue}${values[0].prevValue}`,
-            `${data.nextValue}${values[values.length - 1].nextValue}`,
-            `${data.prevValue}${values[values.length - 1].nextValue}`,
-          ];
-        }
         if (shipArray && !shipLocalState[shipOptions[i].value.name].length) {
           if (
             totalBorderShipValues.find(
@@ -177,11 +194,32 @@ const Home = ({
               ...borderArray,
               ...shipArray,
             ];
-          }
+          } 
+          
+        //   else {
+        //     do
+        //       valuesShipArrayCreator(
+        //         values,
+        //         orientation,
+        //         orientationIndex,
+        //         data
+        //       );
+        //     while (
+        //       totalBorderShipValues.find(
+        //         (element) =>
+        //           element === shipArray[0] ||
+        //           element === shipArray[shipArray.length - 1]
+        //       ) === undefined
+        //     );
+        //   }
         }
       }
     }
-
+    for(let element in shipLocalState){
+      if (!element.value.length){
+        
+      }
+    }
     return localTotalValues;
   };
 
@@ -284,8 +322,8 @@ const Home = ({
     setOrientation(value);
   };
   const handleStatus = () => {
-    if (totalValues.length === 15 && userName.length) return false;
-    else return true;
+    // if (totalValues.length === 15 && userName.length) return false;
+    // else return true;
   };
   const handleUserChange = (e) => {
     setUserName(e.target.value);
@@ -294,11 +332,10 @@ const Home = ({
   const onConfirmUserOptions = () => {
     let values = setCPUInitialValues();
 
-    setInitialUserGameOption(selectedShipType, totalValues, userName);
+    // setInitialUserGameOption(selectedShipType, totalValues, userName);
     setInitialCPUGameOption(values);
     history.push("/game");
   };
-
 
   return (
     <ContentWrapper>
