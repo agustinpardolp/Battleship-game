@@ -1,16 +1,15 @@
 import types from "./types";
 
-export const setInitialUserGameOption = (numberRows, letterColumns) => {
+export const setInitialUserGameOption = (initialUserValues, initialUserTotalValues, userName) => {
   return {
     type: types.SET_INITIAL_USER_GAME_OPTION,
-    payload: { numberRows, letterColumns },
+    payload: { initialUserValues, initialUserTotalValues, userName },
   };
 };
-export const setInitialCPUGameOption = (option) => {
-
+export const setInitialCPUGameOption = (initialCpuValues) => {
   return {
     type: types.SET_INITIAL_CPU_GAME_OPTION,
-    payload: { option},
+    payload: {  initialCpuValues},
   };
 };
 export const setSelectedUserGameOption = (option) => {
