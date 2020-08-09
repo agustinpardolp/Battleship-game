@@ -1,6 +1,7 @@
 import types from "./types";
 
 export const setInitialUserGameOption = (initialUserValues, initialUserTotalValues, userName) => {
+  console.log("ENTRE ACA", initialUserTotalValues)
   return {
     type: types.SET_INITIAL_USER_GAME_OPTION,
     payload: { initialUserValues, initialUserTotalValues, userName },
@@ -12,24 +13,25 @@ export const setInitialCPUGameOption = (initialCpuValues) => {
     payload: {  initialCpuValues},
   };
 };
-export const setSelectedUserGameOption = (option) => {
+export const setSelectedUserGameOption = (userSelection) => {
+  return {
+    type: types.SET_SELECTED_USER_GAME_OPTION,
+    payload: { userSelection,  },
+  };
+};
+export const setSelectedCPUGameOption = (cpuSelection) => {
 
   return {
     type: types.SET_SELECTED_CPU_GAME_OPTION,
-    payload: { option },
-  };
-};
-export const setSelectedCPUGameOption = (option) => {
-
-  return {
-    type: types.SET_SELECTED_USER_GAME_OPTION,
-    payload: {option },
+    payload: {cpuSelection },
   };
 };
 
-
-
-
-export const resetNotification = () => ({
-  type: types.RESET_NOTIFICATION,
+export const setTotalBoardValues = (boardValues) => ({
+  type: types.SET_TOTAL_BOARD_VALUES,
+  payload: {boardValues },
+});
+export const setCpuBoardValues = (cpuBoardValues) => ({
+  type: types.SET_CPU_BOARD_VALUES,
+  payload: {cpuBoardValues },
 });

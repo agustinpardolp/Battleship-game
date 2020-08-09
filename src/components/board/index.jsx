@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 import { letterColumns, numberRows } from "../../utils/constants";
+import { setTotalBoardValues } from "../../redux/actions";
 
 const StyledMainSquare = styled.div`
   background: #c3b7b7;
@@ -15,13 +16,10 @@ const StyledMainSquare = styled.div`
     height: 100%;
     display: table;
     border-collapse: collapse;
-
+    background: grey;
     th {
       width: 1.5rem;
       height: 2rem;
-    }
-    td {
-      border: solid 1px black;
     }
   }
 `;
@@ -43,9 +41,77 @@ const MainContainer = styled.div`
 
 const StyledTD = styled.td`
   background: ${(props) => props.active};
+  border: solid 1px black;
+  cursor: ${(props) => (props.disabled ? "not-allowed" : null)};
+  background-color: ${(props) => (props.disabled ? "#ddd" : null)};
 `;
 
-const Board = ({ handleOptions, totalValues, orientation, shipType }) => {
+const Board = ({
+  handleOptions,
+  selectedValues,
+  orientation,
+  shipType,
+  getTotalBoard,
+  setTotalBoardValues,
+  disabled,
+}) => {
+  // console.log("TOTAL", totalValues)
+  const totalBoard = [];
+  const boardValues = [];
+  useEffect(() => {
+    getTotalBoard(totalBoard);
+    setTotalBoardValues(boardValues);
+  }, []);
+
+  let tdGenerator = (value, cellValues, selectedValues) => {
+    // console.log("TOTAL", selectedValues, "VALUE", value);
+    let cell =
+      selectedValues &&
+      selectedValues.find((element) => {
+        return element.name === value.name;
+      });
+    // console.log("COLOR", cell)
+    let tdColor = "";
+    if (cell) {
+      switch (cell.color) {
+        case "blue":
+          tdColor = "blue";
+          break;
+        case "green":
+          tdColor = "green";
+          break;
+        case "yellow":
+          tdColor = "yellow";
+          break;
+        case "red":
+          tdColor = "red";
+          break;
+        case "black":
+          tdColor = "black";
+          break;
+        default:
+          tdColor = "grey";
+          break;
+      }
+    }
+
+    return (
+      <StyledTD
+        disabled={disabled}
+        active={tdColor}
+        onClick={() => {
+          let { index, data } = cellValues;
+          !disabled
+            && handleOptions &&
+              handleOptions(index, data, value.name, shipType, value)
+           
+        }}
+      >
+        <span></span>
+      </StyledTD>
+    );
+  };
+
   return (
     <MainContainer>
       <StyledMainSquare>
@@ -77,27 +143,17 @@ const Board = ({ handleOptions, totalValues, orientation, shipType }) => {
                         `${letter.nextValue}${number.name}`,
                         `${letter.name}${number.nextValue}`,
                       ],
+                      color: "grey",
+                      marked: false,
+                      isSelected: false,
                     };
                     let cellValues =
                       orientation === "horizontal"
                         ? { index: letterIndex, data: number }
                         : { index: numberIndex, data: letter };
-
-                    return (
-                      <StyledTD
-                        active={
-                          totalValues && totalValues.indexOf(value.name) !== -1
-                            ? "blue"
-                            : null
-                        }
-                        onClick={() => {
-                          let{index, data} = cellValues
-                          handleOptions && handleOptions(index,data, value.name, shipType);
-                        }}
-                      >
-                        <span></span>
-                      </StyledTD>
-                    );
+                    totalBoard.push(value.name);
+                    boardValues.push(value);
+                    return tdGenerator(value, cellValues, selectedValues);
                   })}
                 </tr>
               );
@@ -117,14 +173,21 @@ const mapStateToProps = (state) => {
     letterColumns,
   };
 };
+const mapDispatchToProps = {
+  setTotalBoardValues,
+};
 Board.defaultProps = {
   orientation: "vertical",
+  getTotalBoard: () => {},
+  disabled: false,
 };
 Board.propTypes = {
   handleOptions: PropTypes.func,
-  totalValues: PropTypes.array.isRequired,
+  selectedValues: PropTypes.array.isRequired,
   orientation: PropTypes.string,
-  shipType:PropTypes.string.isRequired,
+  shipType: PropTypes.string.isRequired,
+  setTotalBoardValues: PropTypes.func.isRequired,
+  disabled: PropTypes.bool,
 };
 
-export default connect(mapStateToProps)(Board);
+export default connect(mapStateToProps, mapDispatchToProps)(Board);

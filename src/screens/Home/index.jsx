@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { connect } from "react-redux";
 import { letterColumns, numberRows, shipOptions } from "../../utils/constants";
 import Board from "../../components/board";
@@ -29,13 +29,16 @@ const Home = ({
   setInitialUserGameOption,
   history,
   setInitialCPUGameOption,
+  initialCpuValues,
 }) => {
+
   let [selectedShipType, setSelectedShipType] = useState({
     "Cruisers-1": [],
     "Cruisers-2": [],
     "Cruisers-3": [],
     Submarine: [],
     Carrier: [],
+    total: [],
   });
 
   let [borderFromSelectedShip, setBorderFromSelectedShip] = useState({
@@ -47,10 +50,12 @@ const Home = ({
   });
   let [userName, setUserName] = useState("");
   let [shipType, setShipType] = useState("");
-
+  let [boardValues, setBoardValues] = useState([]);
   let [orientation, setOrientation] = useState("vertical");
 
   let selectedShips = Object.values(selectedShipType);
+  let selectedBorderShips = Object.values(borderFromSelectedShip);
+
   let totalValues = [
     ...selectedShips[0],
     ...selectedShips[1],
@@ -59,8 +64,6 @@ const Home = ({
     ...selectedShips[4],
   ];
 
-  let selectedBorderShips = Object.values(borderFromSelectedShip);
-
   let totalBorderShipValues = [
     ...selectedBorderShips[0],
     ...selectedBorderShips[1],
@@ -68,58 +71,190 @@ const Home = ({
     ...selectedBorderShips[3],
     ...selectedBorderShips[4],
   ];
-  const valuesShipArrayCreator = (
-    values,
-    orientation,
-    orientationIndex,
-    data
-  ) => {
+  const valuesShipArrayCreator = (values, orientation, data, color) => {
+    console.log(values, orientation, data, color)
     let shipArray = [];
     let borderArray = [];
 
     values.forEach((value) => {
-      if (orientation[orientationIndex] === "vertical") {
-        shipArray.push(`${data.name}${value.name}`);
+      if (orientation === "vertical") {
+        shipArray.push({
+          name: `${data.name}${value.name}`,
+          marked: false,
+          isSelected:true,
+          color: `${color?color:"grey"}`,
+          prevValue: [
+            `${data.name}${value.prevValue}`,
+            `${data.prevValue}${value.name}`,
+          ],
+          nextValue: [
+            `${data.nextValue}${value.name}`,
+            `${data.name}${value.nextValue}`,
+          ],
+          orientation: orientation
+        });
         borderArray.push(
-          `${data.nextValue}${value.name}`,
-          `${data.prevValue}${value.name}`
+          {
+            name: `${data.nextValue}${value.name}`,
+            marked: false,
+            isSelected:false,
+            color: "grey",
+          },
+          {
+            name: `${data.prevValue}${value.name}`,
+            marked: false,
+            isSelected:false,
+            color: "grey",
+          }
         );
       } else {
-        shipArray.push(`${value.name}${data.name}`);
+        shipArray.push({
+          name: `${value.name}${data.name}`,
+          marked: false,
+          isSelected:true,
+          color: `${color?color:"grey"}`,
+          prevValue: [
+            `${value.prevValue}${data.name}`,
+            `${value.name}${data.prevValue}`,
+          ],
+          nextValue: [
+            `${value.nextValue}${data.name}`,
+            `${value.name}${data.nextValue}`,
+          ],
+          orientation: orientation
+        });
         borderArray.push(
-          `${value.name}${data.nextValue}`,
-          `${value.name}${data.prevValue}`
+          {
+            name: `${value.name}${data.nextValue}`,
+            marked: false,
+            isSelected:false,
+            color: "grey",
+          },
+          {
+            name: `${value.name}${data.prevValue}`,
+            marked: false,
+            isSelected:false,
+            color: "grey",
+          }
         );
       }
     });
     return { shipArray, borderArray };
   };
 
-  const borderShipArrayCreator = (borderArray, values, data) => {
+  const borderShipArrayCreator = (borderArray, values, data, orientation) => {
     if (orientation === "horizontal") {
       return (borderArray = [
         ...borderArray,
-        `${values[0].prevValue}${data.name}`,
-        `${values[values.length - 1].nextValue}${data.name}`,
-        `${values[0].prevValue}${data.nextValue}`,
-        `${values[0].prevValue}${data.prevValue}`,
-        `${values[values.length - 1].nextValue}${data.nextValue}`,
-        `${values[values.length - 1].nextValue}${data.prevValue}`,
+        {
+          name: `${values[0].prevValue}${data.name}`,
+          marked: false,
+          isSelected:false,
+          color: "grey",
+        },
+        {
+          name: `${values[values.length - 1].nextValue}${data.name}`,
+          marked: false,
+          isSelected:false,
+          color: "grey",
+        },
+        {
+          name: `${values[0].prevValue}${data.nextValue}`,
+          marked: false,
+          isSelected:false,
+          color: "grey",
+        },
+        {
+          name: `${values[0].prevValue}${data.prevValue}`,
+          marked: false,
+          isSelected:false,
+          color: "grey",
+        },
+        {
+          name: `${values[values.length - 1].nextValue}${data.nextValue}`,
+          marked: false,
+          isSelected:false,
+          color: "grey",
+        },
+        {
+          name: `${values[values.length - 1].nextValue}${data.prevValue}`,
+          marked: false,
+          isSelected:false,
+          color: "grey",
+        },
       ]);
     } else {
       return (borderArray = [
         ...borderArray,
-        `${data.name}${values[0].prevValue}`,
-        `${data.name}${values[values.length - 1].nextValue}`,
-        `${data.nextValue}${values[0].prevValue}`,
-        `${data.prevValue}${values[0].prevValue}`,
-        `${data.nextValue}${values[values.length - 1].nextValue}`,
-        `${data.prevValue}${values[values.length - 1].nextValue}`,
+        {
+          name: `${data.name}${values[0].prevValue}`,
+          marked: false,
+          isSelected:false,
+          color: "grey",
+        },
+        {
+          name: `${data.name}${values[values.length - 1].nextValue}`,
+          marked: false,
+          isSelected:false,
+          color: "grey",
+        },
+        {
+          name: `${data.nextValue}${values[0].prevValue}`,
+          marked: false,
+          isSelected:false,
+          color: "grey",
+        },
+        {
+          name: `${data.prevValue}${values[0].prevValue}`,
+          marked: false,
+          isSelected:false,
+          color: "grey",
+        },
+        {
+          name: `${data.nextValue}${values[values.length - 1].nextValue}`,
+          marked: false,
+          isSelected:false,
+          color: "grey",
+        },
+        {
+          name: `${data.prevValue}${values[values.length - 1].nextValue}`,
+          marked: false,
+          isSelected:false,
+          color: "grey",
+        },
       ]);
     }
   };
-  const setCPUInitialValues = () => {
-    let orientation = ["horizontal", "vertical"];
+
+  const shipAroundChecker = (totalBorderShipValues, shipArray) => {
+    return totalBorderShipValues.find(
+      (element) =>
+        element.name === shipArray[0].name ||
+        element.name === shipArray[shipArray.length - 1].name
+    );
+  };
+  const handleCPUInitialValues = (
+    shipOptions,
+    numbers,
+    letters,
+    acumValues = [],
+    acumBorderValues = [],
+    counter = 0,
+    acumNumbersArray,
+    isHorizontal
+  ) => {
+    let isVertical = isHorizontal ? isHorizontal : false;
+    let orientation = isVertical ? "horizontal" : "vertical";
+    let localCopyNumberRows = numbers || numberRows.slice();
+    let localCopyletterColumns = letters || letterColumns.slice();
+    let totalBorderShipValues = acumBorderValues || [];
+    let localTotalValues = acumValues || [];
+    let shipOptionsCopy = [];
+    let numbersArray = acumNumbersArray || [0, 1, 2, 3, 4, 5, 6];
+    let notSelectedNumberRows = numbers || [];
+    let notSelectedLetterColumns = letters || [];
+    counter = counter + 1;
+
     let shipLocalState = {
       "Cruisers-1": [],
       "Cruisers-2": [],
@@ -135,49 +270,64 @@ const Home = ({
       Submarine: [],
       Carrier: [],
     };
-    let totalBorderShipValues = [];
-    let localTotalValues = [];
+
+    numbersArray = numbersArray.sort(function () {
+      return Math.random() - 0.3;
+    });
 
     for (let i = 0; i < shipOptions.length; i++) {
-      let randomNumber = Math.floor(Math.random() * (9 - 0)) + 0;
-      let letterIndex = randomNumber;
-      let numberIndex = randomNumber;
-      let number = numberRows[randomNumber];
-      let letter = letterColumns[randomNumber];
-      let orientationIndex = Math.floor(Math.random() * (3 - 1) + 0);
+      isVertical = !isVertical;
+      let randomNumber = numbersArray[i];
+      let number = localCopyNumberRows[randomNumber];
+      let letter = localCopyletterColumns[randomNumber];
 
-      let cpuCellValues =
-        orientation[orientationIndex] === "vertical"
-          ? { index: letterIndex, data: letter }
-          : { index: numberIndex, data: number };
+      let cpuCellValues = {};
+
+      if (orientation === "vertical") {
+        cpuCellValues = {
+          index: counter + 1,
+          data: letter,
+        };
+      } else {
+        cpuCellValues = {
+          index: counter + 1,
+          data: number,
+        };
+      }
 
       let { index, data } = cpuCellValues;
-
       let values =
-        orientation[orientationIndex] === "vertical"
-          ? numberRows.slice(index, index + shipOptions[i].value.length)
-          : letterColumns.slice(index, index + shipOptions[i].value.length);
+        orientation === "vertical" && localCopyNumberRows.length
+          ? localCopyNumberRows.slice(
+              index,
+              index + shipOptions[i].value.length
+            )
+          : localCopyletterColumns.slice(
+              index,
+              index + shipOptions[i].value.length
+            );
 
-      if (
-        shipOptions[i].value.length &&
-        values.length >= shipOptions[i].value.length
-      ) {
+      if (values.length >= shipOptions[i].value.length) {
         let { shipArray, borderArray } = valuesShipArrayCreator(
           values,
           orientation,
-          orientationIndex,
           data
         );
-        borderArray = borderShipArrayCreator(borderArray, values, data);
 
-        if (shipArray && !shipLocalState[shipOptions[i].value.name].length) {
-          if (
-            totalBorderShipValues.find(
-              (element) =>
-                element === shipArray[0] ||
-                element === shipArray[shipArray.length - 1]
-            ) === undefined
-          ) {
+        borderArray = borderShipArrayCreator(
+          borderArray,
+          values,
+          data,
+          orientation
+        );
+        if (!shipLocalState[shipOptions[i].value.name].length) {
+          let shipsAround = shipAroundChecker(totalBorderShipValues, shipArray);
+          if (shipsAround === undefined) {
+            totalBorderShipValues = [
+              ...totalBorderShipValues,
+              ...borderArray,
+              ...shipArray,
+            ];
             shipLocalState = {
               ...shipLocalState,
               [shipOptions[i].value.name]: shipArray,
@@ -186,92 +336,102 @@ const Home = ({
               ...borderLocalState,
               [shipOptions[i].value.name]: borderArray,
             };
-
             localTotalValues = [...localTotalValues, ...shipArray];
-
             totalBorderShipValues = [
               ...totalBorderShipValues,
               ...borderArray,
               ...shipArray,
             ];
-          } 
-          
-        //   else {
-        //     do
-        //       valuesShipArrayCreator(
-        //         values,
-        //         orientation,
-        //         orientationIndex,
-        //         data
-        //       );
-        //     while (
-        //       totalBorderShipValues.find(
-        //         (element) =>
-        //           element === shipArray[0] ||
-        //           element === shipArray[shipArray.length - 1]
-        //       ) === undefined
-        //     );
-        //   }
+            let value;
+
+            if (orientation === "vertical") {
+              value = localCopyNumberRows.filter(
+                (numberRow) =>
+                  !values.find(
+                    ({ name, prevValue, nextValue }) =>
+                      numberRow.name === name &&
+                      numberRow.nextValue === nextValue &&
+                      numberRow.prevValue === prevValue
+                  )
+              );
+              notSelectedNumberRows = [...notSelectedNumberRows, ...value];
+            } else {
+              value = localCopyletterColumns.filter(
+                (letterCol) =>
+                  !values.find(
+                    ({ name, prevValue, nextValue }) =>
+                      letterCol.name === name &&
+                      letterCol.nextValue === nextValue &&
+                      letterCol.prevValue === prevValue
+                  )
+              );
+              notSelectedLetterColumns = [
+                ...notSelectedLetterColumns,
+                ...value,
+              ];
+            }
+          } else {
+            shipOptionsCopy = [...shipOptionsCopy, shipOptions[i]];
+          }
         }
+      } else {
+        shipOptionsCopy = [...shipOptionsCopy, shipOptions[i]];
+      }
+      if (counter >= 8) {
+        let availableValues = boardValues.filter(
+          (element) => acumBorderValues.indexOf(element) === -1
+        );
+        let values = availableValues.slice(0, shipOptions[i].value.length);
+        let shipArray = values.map((value) => {
+          return {
+            name: value,
+            marked: false,
+            isSelected:false,
+            color: "grey",
+          };
+        });
+        localTotalValues = [...localTotalValues, ...shipArray];
       }
     }
-    for(let element in shipLocalState){
-      if (!element.value.length){
-        
-      }
-    }
-    return localTotalValues;
+    numbersArray.splice(5, numbersArray.length - 1);
+
+    isVertical = !isVertical;
+
+    if (localTotalValues.length < 15) {
+      return handleCPUInitialValues(
+        shipOptionsCopy,
+        notSelectedNumberRows,
+        notSelectedLetterColumns,
+        localTotalValues,
+        totalBorderShipValues,
+        counter,
+        numbersArray,
+        isVertical
+      );
+    } else return localTotalValues;
   };
 
-  const handlerSelectedShip = (index, data, valueName, shipType) => {
+  const handleUserInitialValues = (index, data, _valueName, shipType) => {
     let values =
       orientation === "vertical"
         ? numberRows.slice(index, index + shipType.length)
         : letterColumns.slice(index, index + shipType.length);
 
     if (shipType.length && values.length >= shipType.length) {
-      let shipArray = [];
-      let borderArray = [];
+      let { shipArray, borderArray } = valuesShipArrayCreator(
+        values,
+        orientation,
+        data,
+        "green"
+      );
+      borderArray = borderShipArrayCreator(
+        borderArray,
+        values,
+        data,
+        orientation
+      );
 
-      values.forEach((value) => {
-        if (orientation === "vertical") {
-          shipArray.push(`${data.name}${value.name}`);
-          borderArray.push(
-            `${data.nextValue}${value.name}`,
-            `${data.prevValue}${value.name}`
-          );
-        } else {
-          shipArray.push(`${value.name}${data.name}`);
-          borderArray.push(
-            `${value.name}${data.nextValue}`,
-            `${value.name}${data.prevValue}`
-          );
-        }
-      });
-
-      if (orientation === "horizontal") {
-        borderArray = [
-          ...borderArray,
-          `${values[0].prevValue}${data.name}`,
-          `${values[values.length - 1].nextValue}${data.name}`,
-          `${values[0].prevValue}${data.nextValue}`,
-          `${values[0].prevValue}${data.prevValue}`,
-          `${values[values.length - 1].nextValue}${data.nextValue}`,
-          `${values[values.length - 1].nextValue}${data.prevValue}`,
-        ];
-      } else {
-        borderArray = [
-          ...borderArray,
-          `${data.name}${values[0].prevValue}`,
-          `${data.name}${values[values.length - 1].nextValue}`,
-          `${data.nextValue}${values[0].prevValue}`,
-          `${data.prevValue}${values[0].prevValue}`,
-          `${data.nextValue}${values[values.length - 1].nextValue}`,
-          `${data.prevValue}${values[values.length - 1].nextValue}`,
-        ];
-      }
-
-      return handleInitialOptions(
+      return handleSaveUserOptionsLocally(
         shipArray,
         borderArray,
         totalBorderShipValues,
@@ -280,7 +440,7 @@ const Home = ({
     }
   };
 
-  const handleInitialOptions = (
+  const handleSaveUserOptionsLocally = (
     cellValue,
     borderValues,
     totalBorderShipValues,
@@ -290,14 +450,15 @@ const Home = ({
       if (
         totalBorderShipValues.find(
           (element) =>
-            element === cellValue[0] ||
-            element === cellValue[cellValue.length - 1]
+            element.name === cellValue[0].name ||
+            element.name === cellValue[cellValue.length - 1].name
         ) === undefined
       ) {
         setSelectedShipType({
           ...selectedShipType,
           [shipType.name]: cellValue,
         });
+
         setBorderFromSelectedShip({
           ...borderFromSelectedShip,
           [shipType.name]: borderValues,
@@ -308,6 +469,7 @@ const Home = ({
         ...selectedShipType,
         [shipType.name]: [],
       });
+
       setBorderFromSelectedShip({
         ...borderFromSelectedShip,
         [shipType.name]: [],
@@ -315,10 +477,10 @@ const Home = ({
     }
   };
 
-  const handleDropdownChange = (event, { value }) => {
+  const handleDropdownChange = (_event, { value }) => {
     setShipType(value);
   };
-  const handleOrientationChange = (event, { value }) => {
+  const handleOrientationChange = (_event, { value }) => {
     setOrientation(value);
   };
   const handleStatus = () => {
@@ -330,21 +492,25 @@ const Home = ({
   };
 
   const onConfirmUserOptions = () => {
-    let values = setCPUInitialValues();
-
-    // setInitialUserGameOption(selectedShipType, totalValues, userName);
+    let values = handleCPUInitialValues(shipOptions, numberRows, letterColumns);
+    setInitialUserGameOption(selectedShipType, totalValues, userName);
     setInitialCPUGameOption(values);
     history.push("/game");
+  };
+
+  const getTotalBoard = (value) => {
+    setBoardValues(value);
   };
 
   return (
     <ContentWrapper>
       <Board
-        handleOptions={handlerSelectedShip}
-        totalValues={totalValues}
+        handleOptions={handleUserInitialValues}
+        selectedValues={totalValues}
         shipBorder={borderFromSelectedShip}
         shipType={shipType}
         orientation={orientation}
+        getTotalBoard={getTotalBoard}
       />
       <StyledInputContainer>
         <section>
@@ -370,17 +536,9 @@ const Home = ({
   );
 };
 
-const mapStateToProps = (state) => {
-  let { numberRows, letterColumns } = state.UserInitialGameOption;
-  return {
-    numberRows,
-    letterColumns,
-  };
-};
-
 const mapDispatchToProps = {
   setInitialCPUGameOption,
   setInitialUserGameOption,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Home);
+export default connect(null, mapDispatchToProps)(Home);
