@@ -1,5 +1,6 @@
-import React, { useState} from "react";
+import React, { useState, useCallback} from "react";
 import { connect } from "react-redux";
+import PropTypes from "prop-types";
 import { letterColumns, numberRows, shipOptions, colors, labels } from "../../utils/constants";
 import Board from "../../components/board";
 import ContentWrapper from "../../components/contentWrapper";
@@ -48,7 +49,7 @@ const Home = ({
     Carrier: [],
   });
   let [userName, setUserName] = useState("");
-  let [shipType, setShipType] = useState("");
+  let [shipType, setShipType] = useState({});
   let [boardValues, setBoardValues] = useState([]);
   let [orientation, setOrientation] = useState("vertical");
 
@@ -409,37 +410,7 @@ const Home = ({
       );
     } else return localTotalValues;
   };
-
-  const handleUserInitialValues = (index, data, _valueName, shipType) => {
-    let values =
-      orientation === "vertical"
-        ? numberRows.slice(index, index + shipType.length)
-        : letterColumns.slice(index, index + shipType.length);
-
-    if (shipType.length && values.length >= shipType.length) {
-      let { shipArray, borderArray } = valuesShipArrayCreator(
-        values,
-        orientation,
-        data,
-        colors.green
-      );
-      borderArray = borderShipArrayCreator(
-        borderArray,
-        values,
-        data,
-        orientation
-      );
-
-      return handleSaveUserOptionsLocally(
-        shipArray,
-        borderArray,
-        totalBorderShipValues,
-        shipType
-      );
-    }
-  };
-
-  const handleSaveUserOptionsLocally = (
+  const handleSaveUserOptionsLocally = useCallback((
     cellValue,
     borderValues,
     totalBorderShipValues,
@@ -474,21 +445,52 @@ const Home = ({
         [shipType.name]: [],
       });
     }
-  };
+  },[borderFromSelectedShip, selectedShipType]);
 
-  const handleDropdownChange = (_event, { value }) => {
+  const handleUserInitialValues = useCallback((index, data, _valueName, shipType) => {
+    let values =
+      orientation === "vertical"
+        ? numberRows.slice(index, index + shipType.length)
+        : letterColumns.slice(index, index + shipType.length);
+
+    if (shipType.length && values.length >= shipType.length) {
+      let { shipArray, borderArray } = valuesShipArrayCreator(
+        values,
+        orientation,
+        data,
+        colors.green
+      );
+      borderArray = borderShipArrayCreator(
+        borderArray,
+        values,
+        data,
+        orientation
+      );
+
+      return handleSaveUserOptionsLocally(
+        shipArray,
+        borderArray,
+        totalBorderShipValues,
+        shipType
+      );
+    }
+  },[handleSaveUserOptionsLocally, orientation, totalBorderShipValues]);
+
+
+
+  const handleDropdownChange =  useCallback((_event, { value }) => {
     setShipType(value);
-  };
-  const handleOrientationChange = (_event, { value }) => {
+  },[])
+  const handleOrientationChange = useCallback((_event, { value }) => {
     setOrientation(value);
-  };
+  }, [])
   const handleStatus = () => { //to prevent start the game whitout all the fiels completed
-    // if (totalValues.length === 15 && userName.length) return false;
-    // else return true;
+    if (totalValues.length === 15 && userName.length) return false;
+    else return true;
   };
-  const handleUserChange = (e) => {
+  const handleUserChange =  useCallback((e) =>{
     setUserName(e.target.value);
-  };
+  },[]);
 
   const onConfirmUserOptions = () => {
     let values = handleCPUInitialValues(shipOptions, numberRows, letterColumns);
@@ -497,9 +499,9 @@ const Home = ({
     history.push("/game");
   };
 
-  const getTotalBoard = (value) => {
+  const getTotalBoard = useCallback((value) => {
     setBoardValues(value);
-  };
+  },[]);
 
   return (
     <ContentWrapper>
@@ -540,4 +542,11 @@ const mapDispatchToProps = {
   setInitialUserGameOption,
 };
 
+Home.propTypes = {
+  setInitialUserGameOption: PropTypes.func.isRequired,
+  history: PropTypes.object.isRequired,
+  setInitialCPUGameOption: PropTypes.func.isRequired,
+
+};
 export default connect(null, mapDispatchToProps)(Home);
+

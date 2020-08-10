@@ -1,5 +1,4 @@
-import React, { Component } from "react";
-// import { Button  } from "semantic-ui-react";
+import React from "react";
 import Button from "../button";
 import styled from "styled-components";
 
@@ -49,4 +48,4 @@ const Checkbox = ({ value, handleChange }) => {
     </StyledCheckBoxContainer>
   );
 };
-export default Checkbox;
+export default React.memo(Checkbox);

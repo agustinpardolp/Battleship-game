@@ -94,8 +94,9 @@ const Board = ({
         active={tdColor}
         onClick={() => {
           let { index, data } = cellValues;
-          
-          tdColor !== colors.blue && handleOptions(index, data, value.name, shipType, value);
+
+          tdColor !== colors.blue &&
+            handleOptions(index, data, value.name, shipType, value);
         }}
       >
         <span></span>
@@ -178,9 +179,17 @@ Board.propTypes = {
   handleOptions: PropTypes.func,
   selectedValues: PropTypes.array.isRequired,
   orientation: PropTypes.string,
+  getTotalBoard:PropTypes.func.isRequired,
   shipType: PropTypes.object.isRequired,
   setTotalBoardValues: PropTypes.func.isRequired,
   disabled: PropTypes.bool,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Board);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(
+  React.memo(Board), (prevProps, nextProps) => {
+    return prevProps.shipType === nextProps.shipType;
+  })
+

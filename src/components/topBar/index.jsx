@@ -17,7 +17,7 @@ const StyledTopBar = styled.div`
   }
 `;
 
-export default function TopBar() {
+const TopBar = () => {
   return (
     <StyledTopBar>
       <h1>{labels.mainTitle}</h1>
@@ -25,3 +25,4 @@ export default function TopBar() {
     </StyledTopBar>
   );
 }
+export default React.memo(TopBar)

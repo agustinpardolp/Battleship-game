@@ -146,7 +146,7 @@ const Game = ({
     posibleValues.length && posibleValues.shift();
     setPosibleShot(posibleValues);
 
-    if (cpuStoreValues && cpuStoreValues.length >= 15) {
+    if (cpuStoreValues && cpuStoreValues.length === 14) {
       setShowModal(!showModal);
       setMessage(messages.cpuWin);
       setInitialCPUGameOption([]);
@@ -210,7 +210,7 @@ const Game = ({
     }
 
     setInitialCPUGameOption(tempInitialCpuValues);
-    if (userSelection.length >= 15) {
+    if (userSelection.length === 14) {
       setShowModal(!showModal);
       setMessage(messages.userWin);
       setGameFinished(true);
@@ -293,15 +293,24 @@ const mapDispatchToProps = {
   resetSelectedCPUGameOption,
 };
 
-Game.defaultProps = {
-  orientation: "vertical",
-};
 Game.propTypes = {
-  setSelectedUserGameOption: PropTypes.func.isRequired,
   handleOptions: PropTypes.func.isRequired,
   totalValues: PropTypes.array.isRequired,
-  userName: PropTypes.string,
   boardValues: PropTypes.array.isRequired,
   CpuBoardValues: PropTypes.array.isRequired,
+  userName:  PropTypes.string.isRequired,
+  initialUserValues: PropTypes.array.isRequired,
+  initialCpuValues: PropTypes.array.isRequired,
+  initialUserTotalValues: PropTypes.array.isRequired,
+  setSelectedUserGameOption: PropTypes.func.isRequired,
+  setInitialCPUGameOption:PropTypes.func.isRequired,
+  setInitialUserGameOption:PropTypes.func.isRequired,
+  setSelectedCPUGameOption:PropTypes.func.isRequired,
+  resetSelectedUserGameOption:PropTypes.func.isRequired,
+  resetSelectedCPUGameOption:PropTypes.func.isRequired,
+  userSelection: PropTypes.array.isRequired,
+  cpuBoardValues: PropTypes.array.isRequired,
+  setCpuBoardValues :PropTypes.func.isRequired,
+  cpuStoreValues: PropTypes.func.isRequired,
 };
 export default connect(mapStateToProps, mapDispatchToProps)(Game);
