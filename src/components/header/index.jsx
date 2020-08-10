@@ -12,7 +12,7 @@ const StyledHeader = styled.div`
 export default function Header({userName}) {
   return (
     <StyledHeader>
-      <h2>{userName}</h2>
+      <h2>Player:{" "} {userName}</h2>
       <h2>CPU</h2>
     </StyledHeader>
   );

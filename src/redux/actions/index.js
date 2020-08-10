@@ -1,6 +1,10 @@
 import types from "./types";
 
-export const setInitialUserGameOption = (initialUserValues, initialUserTotalValues, userName) => {
+export const setInitialUserGameOption = (
+  initialUserValues,
+  initialUserTotalValues,
+  userName
+) => {
   return {
     type: types.SET_INITIAL_USER_GAME_OPTION,
     payload: { initialUserValues, initialUserTotalValues, userName },
@@ -9,27 +13,38 @@ export const setInitialUserGameOption = (initialUserValues, initialUserTotalValu
 export const setInitialCPUGameOption = (initialCpuValues) => {
   return {
     type: types.SET_INITIAL_CPU_GAME_OPTION,
-    payload: {  initialCpuValues},
+    payload: { initialCpuValues },
   };
 };
-export const setSelectedUserGameOption = (option) => {
-
-  return {
-    type: types.SET_SELECTED_CPU_GAME_OPTION,
-    payload: { option },
-  };
-};
-export const setSelectedCPUGameOption = (option) => {
-
+export const setSelectedUserGameOption = (userSelection) => {
   return {
     type: types.SET_SELECTED_USER_GAME_OPTION,
-    payload: {option },
+    payload: { userSelection },
+  };
+};
+export const resetSelectedUserGameOption = () => {
+  return {
+    type: types.RESET_SELECTED_USER_GAME_OPTION,
+  };
+};
+export const resetSelectedCPUGameOption = () => {
+  return {
+    type: types.RESET_SELECTED_CPU_GAME_OPTION,
   };
 };
 
+export const setSelectedCPUGameOption = (cpuSelection) => {
+  return {
+    type: types.SET_SELECTED_CPU_GAME_OPTION,
+    payload: { cpuSelection },
+  };
+};
 
-
-
-export const resetNotification = () => ({
-  type: types.RESET_NOTIFICATION,
+export const setTotalBoardValues = (boardValues) => ({
+  type: types.SET_TOTAL_BOARD_VALUES,
+  payload: { boardValues },
+});
+export const setCpuBoardValues = (cpuBoardValues) => ({
+  type: types.SET_CPU_BOARD_VALUES,
+  payload: { cpuBoardValues },
 });

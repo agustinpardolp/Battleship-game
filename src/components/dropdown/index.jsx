@@ -3,7 +3,7 @@ import { Dropdown as DropDowns } from "semantic-ui-react";
 import {shipOptions} from "../../utils/constants";
 
 
-const Dropdown = ({ handleChange, selectedShipType }) => (
+const Dropdown = ({ handleChange }) => (
 
   <DropDowns
     placeholder="Select a Ship"
@@ -15,4 +15,4 @@ const Dropdown = ({ handleChange, selectedShipType }) => (
   />
 );
 
-export default Dropdown;
+export default React.memo(Dropdown);
