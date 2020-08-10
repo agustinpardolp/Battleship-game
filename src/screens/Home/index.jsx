@@ -31,51 +31,6 @@ const Home = ({
   history,
   setInitialCPUGameOption,
 }) => {
-<<<<<<< HEAD
-  let [selectedShipType, setSelectedShipType] = useState({
-    "Cruisers-1": [],
-    "Cruisers-2": [],
-    "Cruisers-3": [],
-    Submarine: [],
-    Carrier: [],
-  });
-  let [borderFromSelectedShip, setBorderFromSelectedShip] = useState({
-    "Cruisers-1": [],
-    "Cruisers-2": [],
-    "Cruisers-3": [],
-    Submarine: [],
-    Carrier: [],
-  });
-
-  let [shipType, setShipType] = useState("");
-  let [orientation, setOrientation] = useState("vertical");
-
-  const handleUserChange = (e) => {
-    // console.log(e);
-  };
-
-  const handleInitialOptions = (
-    cellValue,
-    borderValues,
-    totalBorderShipValues
-  ) => {
-    if (cellValue && !selectedShipType[shipType.name].length) {
-      if (
-        totalBorderShipValues.find(
-          (element) =>
-            element === cellValue[0] ||
-            element === cellValue[cellValue.length - 1]
-        ) === undefined
-      ) {
-        setSelectedShipType({
-          ...selectedShipType,
-          [shipType.name]: cellValue,
-        });
-        setBorderFromSelectedShip({
-          ...borderFromSelectedShip,
-          [shipType.name]: borderValues,
-        });
-=======
 
   let [selectedShipType, setSelectedShipType] = useState({ //IMP: the ideal and the right way to do this is to separate the states; it would be necessary a refactor in the future.
     "Cruisers-1": [],
@@ -436,41 +391,8 @@ const Home = ({
           };
         });
         localTotalValues = [...localTotalValues, ...shipArray];
->>>>>>> 46fcd7cea6cc65e7b931308221b56995a9d1230a
       }
-    } else {
-      setSelectedShipType({
-        ...selectedShipType,
-        [shipType.name]: [],
-      });
-      setBorderFromSelectedShip({
-        ...borderFromSelectedShip,
-        [shipType.name]: [],
-      });
     }
-<<<<<<< HEAD
-  };
-
-  const handleDropdownChange = (event, { value }) => {
-    setShipType(value);
-  };
-  const handleOrientationChange = (event, { value }) => {
-    setOrientation(value);
-  };
-  return (
-    <ContentWrapper>
-      <Board
-        handleOptions={handleInitialOptions}
-        selectedOptions={selectedShipType}
-        shipBorder={borderFromSelectedShip}
-        shipType={shipType}
-        orientation={orientation}
-      />
-      <StyledInputContainer>
-        <section>
-          <Input handleChange={handleUserChange} label={"Player Name"} />
-          <Dropdown handleChange={handleDropdownChange} />
-=======
     numbersArray.splice(5, numbersArray.length - 1);
 
     isVertical = !isVertical;
@@ -598,14 +520,10 @@ const Home = ({
             handleChange={handleDropdownChange}
             selectedShipType={selectedShipType}
           />
->>>>>>> 46fcd7cea6cc65e7b931308221b56995a9d1230a
           <Checkbox
             handleChange={handleOrientationChange}
             value={orientation}
           />
-<<<<<<< HEAD
-          <Button />
-=======
           <Button
             content= {labels.buttonStart}
             disabled={handleStatus()}
@@ -613,7 +531,6 @@ const Home = ({
             iconType="right arrow"
             inverted={true}
           />
->>>>>>> 46fcd7cea6cc65e7b931308221b56995a9d1230a
         </section>
       </StyledInputContainer>
     </ContentWrapper>
@@ -632,4 +549,3 @@ Home.propTypes = {
 
 };
 export default connect(null, mapDispatchToProps)(Home);
-
