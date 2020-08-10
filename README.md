@@ -1,4 +1,4 @@
-BattleShip Game
+## BattleShip Game
 
 This game is completely based on the ReactJS, React-Redux and Styled Components.
 
