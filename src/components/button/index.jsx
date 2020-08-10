@@ -1,23 +1,27 @@
 import React from "react";
-import styled from "styled-components";
 import { Button as SemanticButton } from "semantic-ui-react";
 
-const StyledButton = styled.button`
-  font-size: 1.1rem;
-  width: 50%;
-  height: 48%;
-  background: #0bc555;
-  border-radius: 25px;
-  box-shadow: 1px 2px 4px;
-`;
-export default function Button() {
+export default function Button({
+  disabled,
+  onClick,
+  iconType,
+  content,
+  value,
+  inverted,
+  active,
+  color
+}) {
   return (
     <SemanticButton
-      content="Start Game"
-      icon="right arrow"
+      content={content}
+      icon={iconType ? iconType : "default"}
       labelPosition="right"
-      basic
-      color="olive"
+      color={color?color:"olive"}
+      value={value}
+      disabled={disabled}
+      inverted={inverted}
+      onClick={onClick}
+      active={active ? true : false}
     />
   );
 }

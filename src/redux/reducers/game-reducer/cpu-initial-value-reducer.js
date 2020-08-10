@@ -1,11 +1,17 @@
-import types from '../../actions/types';
+import types from "../../actions/types";
 
-export const CpuInitialGameOption = (state = {}, { type, payload = {} }) => {
+export const CpuInitialGameOption = (
+  state = {
+    initialCpuValues: "",
+  },
+  { type, payload = {} }
+) => {
   switch (type) {
-    case types.SET_CPU_INITIAL_GAME_OPTION:
-      return { option: payload.option};
-    case types.RESET_NOTIFICATION:
-      return { option: null };
+
+    case types.SET_INITIAL_CPU_GAME_OPTION:
+      return {
+        initialCpuValues: payload.initialCpuValues,
+      };
     default:
       return state;
   }

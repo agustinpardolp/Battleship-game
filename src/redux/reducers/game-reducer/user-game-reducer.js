@@ -1,12 +1,18 @@
-import types from '../../actions/types';
+import types from "../../actions/types";
 
-
-export const UserGameOption = (state = {}, { type, payload = {} }) => {
+export const UserGameOption = (
+  state = {
+    userSelection: [],
+  },
+  { type, payload = {} }
+) => {
   switch (type) {
     case types.SET_SELECTED_USER_GAME_OPTION:
-      return { option: payload.option}
-    case types.RESET_NOTIFICATION:
-      return { message: null, msgType: null };
+      return {
+        userSelection: [...state.userSelection, payload.userSelection],
+      };
+    case types.RESET_SELECTED_USER_GAME_OPTION:
+      return { userSelection: [] };
     default:
       return state;
   }

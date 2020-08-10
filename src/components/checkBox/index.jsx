@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import { Button  } from "semantic-ui-react";
+import React from "react";
+import Button from "../button";
 import styled from "styled-components";
 
 const StyledCheckBoxContainer = styled.div`
@@ -21,34 +21,31 @@ const Checkbox = ({ value, handleChange }) => {
   return (
     <StyledCheckBoxContainer>
       <span>
-        Orientacion: <b>{value}</b>
+        Orientation: <b>{value}</b>
       </span>
       <StyledButtonContainer>
-        <Button onClick={handleChange} value="vertical">
+        <Button
+          onClick={handleChange}
+          value={"vertical"}
+          content="vertical"
+          iconType="arrows alternate vertical"
+          inverted
+          color="olive"
+        >
           Vertical
         </Button>
-        <Button onClick={handleChange} value="horizontal">
+        <Button
+          onClick={handleChange}
+          value={"horizontal"}
+          iconType="arrows alternate horizontal"
+          content="horizontal"
+          inverted
+          color="olive"
+        >
           Horizontal
         </Button>
       </StyledButtonContainer>
-      {/* <SemanticCheckBox
-          radio
-          label="Vertical"
-          name="checkboxRadioGroup"
-          value="vertical"
-          checked={this.state.value === "vertical"}
-          onChange={this.handleChange}
-         
-        />
-        <SemanticCheckBox
-          radio
-          label="Or that"
-          name="checkboxRadioGroup"
-          value="horizontal"
-          checked={this.state.value === "horizontal"}
-          onChange={this.handleChange}
-        /> */}
     </StyledCheckBoxContainer>
   );
 };
-export default Checkbox
+export default React.memo(Checkbox);
