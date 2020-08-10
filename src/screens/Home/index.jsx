@@ -549,4 +549,3 @@ Home.propTypes = {
 
 };
 export default connect(null, mapDispatchToProps)(Home);
-
