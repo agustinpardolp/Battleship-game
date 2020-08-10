@@ -26,72 +26,87 @@ const Game = ({
   boardValues,
   cpuBoardValues,
   setCpuBoardValues,
+  cpuStoreValues,
 }) => {
   let [showModal, setShowModal] = useState(false);
   let [message, setMessage] = useState("");
   let [playersTurn, setPlayersTurn] = useState(false);
-  let [cpuTurns, setCpuTurns] = useState(true);
-  let [userShipTouched, setUserShipTouched] = useState({
-    successful: [],
-    failed: [],
-    posibleValues: [],
-  });
+  let [successfulShot, setSuccessfullShot] = useState([]);
+  let [posibleShot, setPosibleShot] = useState([]);
+  let [failedShot, setFailedShot] = useState([]);
+
+  const randomPosition = (localBoardValues) => {
+    // fn to generate a random position
+    let position = Math.floor(Math.random() * localBoardValues.length - 1 + 1);
+    return { cpuSelection: localBoardValues[position], position };
+  };
+
+  const posibleShotsFilter = (failedShot, posibleValues) => {
+    //clean the array of posible options, discard the blue one and null cells
+    posibleValues = posibleValues.filter((value) => !value.includes("null"));
+    let resultado = failedShot.map((value) => value.name);
+    posibleValues = posibleValues.filter((value) => !resultado.includes(value));
+    return posibleValues;
+  };
 
   const handleCpuSelection = () => {
+    // fn to handle the cpu movements
     let exist = false;
     let localBoardValues =
       cpuBoardValues && cpuBoardValues.length
         ? cpuBoardValues
         : boardValues.slice();
-    let position = Math.floor(Math.random() * localBoardValues.length - 1 + 1);
-    let cpuSelection = localBoardValues[position];
-    let posibleValues = []
+    let { cpuSelection, position } = randomPosition(localBoardValues);
+    let posibleValues = [];
 
-    if (userShipTouched.successful.length) {
+    if (successfulShot.length) { //a)if there are sucfesfullShots...
       posibleValues =
-        userShipTouched.posibleValues && userShipTouched.posibleValues.length
-          ? userShipTouched.posibleValues.slice()
+        posibleShot && posibleShot.length //b).. look for the posibles shots in the next and prev values of each cell...
+          ? posibleShot.slice()
           : [
-              ...userShipTouched.successful[
-                userShipTouched.successful.length - 1
-              ].nextValue,
-              ...userShipTouched.successful[
-                userShipTouched.successful.length - 1
-              ].prevValue,
+              ...successfulShot[successfulShot.length - 1].nextValue,
+              ...successfulShot[successfulShot.length - 1].prevValue,
             ];
-      posibleValues = posibleValues.filter((value) => !value.includes("null"));
-      console.log("POSIBLEVALUES DEL HAY SUCCES ARRAY", posibleValues);
-      setUserShipTouched({
-        ...userShipTouched,
-        posibleValues: posibleValues,
-      });
+      posibleValues = posibleShotsFilter(failedShot, posibleValues); //b)..clean the posibleValues
 
-      debugger;
-
-      cpuSelection = {
+      setPosibleShot([...posibleValues]);
+      cpuSelection = {  //c)redefine the cpuSelection local value to test the first option of the posibleValues Array
         name: posibleValues[0],
         marked: true,
         isSelected: true,
         color: "grey",
       };
+
+      position = localBoardValues //d) find the posibleValues position in order to remote it from boardValues and update at the end of the function (line 145)
+        .map(function (e) {
+          return e.name;
+        })
+        .indexOf(posibleValues[0]);
+
+      if (successfulShot.length >= 2) { // If the CPU has already clicked twice, find the other values ​​in the initialUserValues array
+        cpuSelection = checkCpuSelectionInUserOptions(
+          initialUserValues,
+          successfulShot
+        )[0];
+
+        if (!cpuSelection) {
+          setSuccessfullShot([]);
+
+          cpuSelection = randomPosition(localBoardValues).cpuSelection; //
+          //if there are no possible values ​​left to test, I clean the array and start the loop again whit a random number...
+        }
+      }
     }
+    //the CPU movemments are random, until the CPU hit an user ship..
     let tempInitialUserValues =
       initialUserTotalValues &&
       initialUserTotalValues.map((value) => {
-        if (value.name === cpuSelection.name) {
+        if (value.name === cpuSelection.name && value.color === "green") {
           exist = true;
-          debugger;
 
-          setSelectedCPUGameOption(cpuSelection);
-          setUserShipTouched({
-            ...userShipTouched,
-            successful: [...userShipTouched.successful, value],
-            posibleValues: [],
-          });
-          debugger;
-          console.log(userShipTouched);
-
-          debugger;
+          setSelectedCPUGameOption(cpuSelection); //update list of succesfull CPU movements
+          setSuccessfullShot([...successfulShot, value]);//update a temporal list of succesfull CPU movements
+          setPosibleShot([]); //clean the posible shots array
 
           return (value = {
             name: value.name,
@@ -100,16 +115,12 @@ const Game = ({
             color: "yellow",
             prevValue: value.prevValue,
             nextValue: value.nextValue,
+            orientation: value.orientation,
           });
         } else return value;
       });
 
     if (!exist) {
-      console.log(cpuSelection);
-      console.log(
-        "POSIBLEVALUES DEL HAY SUCCES ARRAY",
-        userShipTouched.posibleValues
-      );
       tempInitialUserValues = [
         ...tempInitialUserValues,
         ...[
@@ -119,23 +130,20 @@ const Game = ({
             isSelected: true,
             color: "blue",
           },
-        ],  
+        ],
       ];
-      posibleValues.length  &&  posibleValues.shift();
-     console.log(posibleValues)
-      setUserShipTouched({
-        ...userShipTouched,
-        failed: [...userShipTouched.failed, cpuSelection],
-        posibleValues: posibleValues,
-      });
+      setFailedShot([...failedShot, cpuSelection]);
     }
+    posibleValues.length && posibleValues.shift();
+    setPosibleShot(posibleValues);
 
-    if (cpuSelection && cpuSelection.length >= 15) {
+    if (cpuStoreValues && cpuStoreValues.length >= 15) {
       setShowModal(!showModal);
-      setMessage("Felicitaciones, Ganaste!");
+      setMessage("Has perdido!");
       setInitialCPUGameOption([]);
     }
     localBoardValues.splice(position, 1);
+
     setCpuBoardValues(localBoardValues);
     setInitialUserGameOption(
       initialUserValues,
@@ -143,7 +151,6 @@ const Game = ({
       userName
     );
     setPlayersTurn(false);
-    // setCpuTurns(!cpuTurns);
   };
 
   useEffect(() => {
@@ -187,11 +194,29 @@ const Game = ({
     handleCpuSelection();
   };
 
-  // let checkCpuSelectionInUserOptions = (initialUserValues, userShipTouched )=>{
-  //   for(let userOptions in initialUserValues){
-  //     userOptions.filter((value)=>userShipTouched.find(item =>item.name !== value.name))
-  //   }
-  // }
+  let checkCpuSelectionInUserOptions = (
+    //when cpu touches at least two user squares,
+    //it uses this fn to find the other positions
+    initialUserValues,
+    userShipTouchedSuccessful,
+  ) => {
+    let userShipOptions = [];
+    for (let userOptions in initialUserValues) {
+      let ships = initialUserValues[userOptions].filter((value) =>
+        userShipTouchedSuccessful.find((item) => item.name === value.name)
+      );
+      if (ships.length) {
+        userShipOptions = initialUserValues[userOptions];
+        break;
+      }
+    }
+    let result = userShipOptions.filter(
+      (item) =>
+        !userShipTouchedSuccessful.some((other) => item.name === other.name)
+    );
+
+    return result;
+  };
 
   return (
     <>
@@ -216,17 +241,18 @@ const mapStateToProps = (state) => {
     userName,
   } = state.UserInitialGameOption;
   let { userSelection } = state.UserGameOption;
-  let { cpuSelection } = state.CPUGameOption;
+  let { cpuSelection: cpuStoreValues } = state.CPUGameOption;
   let { initialCpuValues } = state.CpuInitialGameOption;
   let { boardValues } = state.BoardValues;
   let { cpuBoardValues } = state.CpuBoardValues;
+
   return {
     initialUserValues,
     initialUserTotalValues,
     initialCpuValues,
     userName,
     userSelection,
-    cpuSelection,
+    cpuStoreValues,
     boardValues,
     cpuBoardValues,
   };

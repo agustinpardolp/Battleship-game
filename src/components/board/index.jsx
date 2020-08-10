@@ -55,7 +55,7 @@ const Board = ({
   setTotalBoardValues,
   disabled,
 }) => {
-  // console.log("TOTAL", totalValues)
+
   const totalBoard = [];
   const boardValues = [];
   useEffect(() => {
@@ -64,13 +64,13 @@ const Board = ({
   }, []);
 
   let tdGenerator = (value, cellValues, selectedValues) => {
-    // console.log("TOTAL", selectedValues, "VALUE", value);
+
     let cell =
       selectedValues &&
       selectedValues.find((element) => {
         return element.name === value.name;
       });
-    // console.log("COLOR", cell)
+
     let tdColor = "";
     if (cell) {
       switch (cell.color) {

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState} from "react";
 import { connect } from "react-redux";
 import { letterColumns, numberRows, shipOptions } from "../../utils/constants";
 import Board from "../../components/board";
@@ -71,8 +71,8 @@ const Home = ({
     ...selectedBorderShips[3],
     ...selectedBorderShips[4],
   ];
-  const valuesShipArrayCreator = (values, orientation, data, color) => {
-    console.log(values, orientation, data, color)
+  const valuesShipArrayCreator = (values, orientation, data, color) => { //create "ships array"
+
     let shipArray = [];
     let borderArray = [];
 
@@ -142,7 +142,7 @@ const Home = ({
     return { shipArray, borderArray };
   };
 
-  const borderShipArrayCreator = (borderArray, values, data, orientation) => {
+  const borderShipArrayCreator = (borderArray, values, data, orientation) => { //create "border water array"
     if (orientation === "horizontal") {
       return (borderArray = [
         ...borderArray,
@@ -255,7 +255,7 @@ const Home = ({
     let notSelectedLetterColumns = letters || [];
     counter = counter + 1;
 
-    let shipLocalState = {
+    let shipLocalState = {  //localObjet to save the ships values
       "Cruisers-1": [],
       "Cruisers-2": [],
       "Cruisers-3": [],
@@ -263,7 +263,7 @@ const Home = ({
       Carrier: [],
     };
 
-    let borderLocalState = {
+    let borderLocalState = {  //localObjet to save the border values
       "Cruisers-1": [],
       "Cruisers-2": [],
       "Cruisers-3": [],
@@ -275,7 +275,7 @@ const Home = ({
       return Math.random() - 0.3;
     });
 
-    for (let i = 0; i < shipOptions.length; i++) {
+    for (let i = 0; i < shipOptions.length; i++) { // for each shipOptins ((cruiser X3, carrier, submarine))
       isVertical = !isVertical;
       let randomNumber = numbersArray[i];
       let number = localCopyNumberRows[randomNumber];
@@ -283,7 +283,7 @@ const Home = ({
 
       let cpuCellValues = {};
 
-      if (orientation === "vertical") {
+      if (orientation === "vertical") {  
         cpuCellValues = {
           index: counter + 1,
           data: letter,
@@ -296,7 +296,7 @@ const Home = ({
       }
 
       let { index, data } = cpuCellValues;
-      let values =
+      let values =    //select the cpuCellValues
         orientation === "vertical" && localCopyNumberRows.length
           ? localCopyNumberRows.slice(
               index,
@@ -308,20 +308,20 @@ const Home = ({
             );
 
       if (values.length >= shipOptions[i].value.length) {
-        let { shipArray, borderArray } = valuesShipArrayCreator(
+        let { shipArray, borderArray } = valuesShipArrayCreator(  //create the ship cells...
           values,
           orientation,
           data
         );
 
-        borderArray = borderShipArrayCreator(
+        borderArray = borderShipArrayCreator( //save the border ship cells... (those are the "water" options around each cell)
           borderArray,
           values,
           data,
           orientation
         );
-        if (!shipLocalState[shipOptions[i].value.name].length) {
-          let shipsAround = shipAroundChecker(totalBorderShipValues, shipArray);
+        if (!shipLocalState[shipOptions[i].value.name].length) { //if the shipOption in the local option is available...
+          let shipsAround = shipAroundChecker(totalBorderShipValues, shipArray); //check is the selected is not a "water option"...
           if (shipsAround === undefined) {
             totalBorderShipValues = [
               ...totalBorderShipValues,
@@ -371,13 +371,13 @@ const Home = ({
               ];
             }
           } else {
-            shipOptionsCopy = [...shipOptionsCopy, shipOptions[i]];
+            shipOptionsCopy = [...shipOptionsCopy, shipOptions[i]]; //update a local copy of the ship options for the recursion...
           }
         }
       } else {
-        shipOptionsCopy = [...shipOptionsCopy, shipOptions[i]];
+        shipOptionsCopy = [...shipOptionsCopy, shipOptions[i]]; //update a local copy of the ship options for the recursion..
       }
-      if (counter >= 8) {
+      if (counter >= 8) { // in case the recursion takes at least 8 rounds, the ship position will be defined manually...
         let availableValues = boardValues.filter(
           (element) => acumBorderValues.indexOf(element) === -1
         );
@@ -398,7 +398,7 @@ const Home = ({
     isVertical = !isVertical;
 
     if (localTotalValues.length < 15) {
-      return handleCPUInitialValues(
+      return handleCPUInitialValues( //recursive function until the CPU values are complete
         shipOptionsCopy,
         notSelectedNumberRows,
         notSelectedLetterColumns,
@@ -483,7 +483,7 @@ const Home = ({
   const handleOrientationChange = (_event, { value }) => {
     setOrientation(value);
   };
-  const handleStatus = () => {
+  const handleStatus = () => { //to prevent start the game whitout all the fiels completed
     // if (totalValues.length === 15 && userName.length) return false;
     // else return true;
   };
@@ -493,8 +493,8 @@ const Home = ({
 
   const onConfirmUserOptions = () => {
     let values = handleCPUInitialValues(shipOptions, numberRows, letterColumns);
-    setInitialUserGameOption(selectedShipType, totalValues, userName);
-    setInitialCPUGameOption(values);
+    setInitialUserGameOption(selectedShipType, totalValues, userName); //set userOptions on redux store
+    setInitialCPUGameOption(values);//set cpuOptions on redux store
     history.push("/game");
   };
 

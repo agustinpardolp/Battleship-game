@@ -10,6 +10,7 @@ export default function Modal({ setOpen, open, message }) {
       open={open}
       onClose={() => setOpen(false)}
       onOpen={() => setOpen(true)}
+      size ='mini'
     >
       <SemanticModal.Header>{"Wooo"}</SemanticModal.Header>
       <SemanticModal.Content>

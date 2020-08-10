@@ -1,7 +1,6 @@
 import types from "./types";
 
 export const setInitialUserGameOption = (initialUserValues, initialUserTotalValues, userName) => {
-  console.log("ENTRE ACA", initialUserTotalValues)
   return {
     type: types.SET_INITIAL_USER_GAME_OPTION,
     payload: { initialUserValues, initialUserTotalValues, userName },
