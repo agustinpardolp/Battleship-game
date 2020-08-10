@@ -1,6 +1,6 @@
 import React, { useState} from "react";
 import { connect } from "react-redux";
-import { letterColumns, numberRows, shipOptions } from "../../utils/constants";
+import { letterColumns, numberRows, shipOptions, colors, labels } from "../../utils/constants";
 import Board from "../../components/board";
 import ContentWrapper from "../../components/contentWrapper";
 import Input from "../../components/input";
@@ -29,10 +29,9 @@ const Home = ({
   setInitialUserGameOption,
   history,
   setInitialCPUGameOption,
-  initialCpuValues,
 }) => {
 
-  let [selectedShipType, setSelectedShipType] = useState({
+  let [selectedShipType, setSelectedShipType] = useState({ //IMP: the ideal and the right way to do this is to separate the states; it would be necessary a refactor in the future.
     "Cruisers-1": [],
     "Cruisers-2": [],
     "Cruisers-3": [],
@@ -71,7 +70,7 @@ const Home = ({
     ...selectedBorderShips[3],
     ...selectedBorderShips[4],
   ];
-  const valuesShipArrayCreator = (values, orientation, data, color) => { //create "ships array"
+  const valuesShipArrayCreator = (values, orientation, data, color) => {
 
     let shipArray = [];
     let borderArray = [];
@@ -82,7 +81,7 @@ const Home = ({
           name: `${data.name}${value.name}`,
           marked: false,
           isSelected:true,
-          color: `${color?color:"grey"}`,
+          color: `${color?color:colors.grey}`,
           prevValue: [
             `${data.name}${value.prevValue}`,
             `${data.prevValue}${value.name}`,
@@ -98,13 +97,13 @@ const Home = ({
             name: `${data.nextValue}${value.name}`,
             marked: false,
             isSelected:false,
-            color: "grey",
+            color: colors.grey,
           },
           {
             name: `${data.prevValue}${value.name}`,
             marked: false,
             isSelected:false,
-            color: "grey",
+            color: colors.grey,
           }
         );
       } else {
@@ -112,7 +111,7 @@ const Home = ({
           name: `${value.name}${data.name}`,
           marked: false,
           isSelected:true,
-          color: `${color?color:"grey"}`,
+          color: `${color?color:colors.grey}`,
           prevValue: [
             `${value.prevValue}${data.name}`,
             `${value.name}${data.prevValue}`,
@@ -128,13 +127,13 @@ const Home = ({
             name: `${value.name}${data.nextValue}`,
             marked: false,
             isSelected:false,
-            color: "grey",
+            color: colors.grey,
           },
           {
             name: `${value.name}${data.prevValue}`,
             marked: false,
             isSelected:false,
-            color: "grey",
+            color: colors.grey,
           }
         );
       }
@@ -150,37 +149,37 @@ const Home = ({
           name: `${values[0].prevValue}${data.name}`,
           marked: false,
           isSelected:false,
-          color: "grey",
+          color: colors.grey,
         },
         {
           name: `${values[values.length - 1].nextValue}${data.name}`,
           marked: false,
           isSelected:false,
-          color: "grey",
+          color: colors.grey,
         },
         {
           name: `${values[0].prevValue}${data.nextValue}`,
           marked: false,
           isSelected:false,
-          color: "grey",
+          color: colors.grey,
         },
         {
           name: `${values[0].prevValue}${data.prevValue}`,
           marked: false,
           isSelected:false,
-          color: "grey",
+          color: colors.grey,
         },
         {
           name: `${values[values.length - 1].nextValue}${data.nextValue}`,
           marked: false,
           isSelected:false,
-          color: "grey",
+          color: colors.grey,
         },
         {
           name: `${values[values.length - 1].nextValue}${data.prevValue}`,
           marked: false,
           isSelected:false,
-          color: "grey",
+          color: colors.grey,
         },
       ]);
     } else {
@@ -190,43 +189,43 @@ const Home = ({
           name: `${data.name}${values[0].prevValue}`,
           marked: false,
           isSelected:false,
-          color: "grey",
+          color: colors.grey,
         },
         {
           name: `${data.name}${values[values.length - 1].nextValue}`,
           marked: false,
           isSelected:false,
-          color: "grey",
+          color: colors.grey,
         },
         {
           name: `${data.nextValue}${values[0].prevValue}`,
           marked: false,
           isSelected:false,
-          color: "grey",
+          color: colors.grey,
         },
         {
           name: `${data.prevValue}${values[0].prevValue}`,
           marked: false,
           isSelected:false,
-          color: "grey",
+          color: colors.grey,
         },
         {
           name: `${data.nextValue}${values[values.length - 1].nextValue}`,
           marked: false,
           isSelected:false,
-          color: "grey",
+          color: colors.grey,
         },
         {
           name: `${data.prevValue}${values[values.length - 1].nextValue}`,
           marked: false,
           isSelected:false,
-          color: "grey",
+          color: colors.grey,
         },
       ]);
     }
   };
 
-  const shipAroundChecker = (totalBorderShipValues, shipArray) => {
+  const shipAroundChecker = (totalBorderShipValues, shipArray) => { // chek if the selected option exist in the "water/border array"
     return totalBorderShipValues.find(
       (element) =>
         element.name === shipArray[0].name ||
@@ -387,7 +386,7 @@ const Home = ({
             name: value,
             marked: false,
             isSelected:false,
-            color: "grey",
+            color: colors.grey,
           };
         });
         localTotalValues = [...localTotalValues, ...shipArray];
@@ -422,7 +421,7 @@ const Home = ({
         values,
         orientation,
         data,
-        "green"
+        colors.green
       );
       borderArray = borderShipArrayCreator(
         borderArray,
@@ -514,7 +513,7 @@ const Home = ({
       />
       <StyledInputContainer>
         <section>
-          <Input handleChange={handleUserChange} label={"Player Name"} />
+          <Input handleChange={handleUserChange} label={labels.input} />
           <Dropdown
             handleChange={handleDropdownChange}
             selectedShipType={selectedShipType}
@@ -524,7 +523,7 @@ const Home = ({
             value={orientation}
           />
           <Button
-            content="Start Game"
+            content= {labels.buttonStart}
             disabled={handleStatus()}
             onClick={onConfirmUserOptions}
             iconType="right arrow"

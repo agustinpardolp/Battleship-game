@@ -15,8 +15,6 @@ export const UserInitialGameOption = (
         initialUserTotalValues: payload.initialUserTotalValues,
         userName: payload.userName,
       };
-    case types.RESET_NOTIFICATION:
-      return { message: null, msgType: null };
     default:
       return state;
   }

@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import styled from "styled-components";
-import { letterColumns, numberRows } from "../../utils/constants";
+import { letterColumns, numberRows, colors } from "../../utils/constants";
 import { setTotalBoardValues } from "../../redux/actions";
 
 const StyledMainSquare = styled.div`
@@ -55,7 +55,6 @@ const Board = ({
   setTotalBoardValues,
   disabled,
 }) => {
-
   const totalBoard = [];
   const boardValues = [];
   useEffect(() => {
@@ -64,7 +63,6 @@ const Board = ({
   }, []);
 
   let tdGenerator = (value, cellValues, selectedValues) => {
-
     let cell =
       selectedValues &&
       selectedValues.find((element) => {
@@ -74,37 +72,30 @@ const Board = ({
     let tdColor = "";
     if (cell) {
       switch (cell.color) {
-        case "blue":
-          tdColor = "blue";
+        case colors.blue:
+          tdColor = colors.blue;
           break;
-        case "green":
-          tdColor = "green";
+        case colors.green:
+          tdColor = colors.green;
           break;
-        case "yellow":
-          tdColor = "yellow";
-          break;
-        case "red":
-          tdColor = "red";
-          break;
-        case "black":
-          tdColor = "black";
+        case colors.yellow:
+          tdColor = colors.yellow;
           break;
         default:
-          tdColor = "grey";
+          tdColor = colors.grey;
           break;
       }
     }
 
     return (
       <StyledTD
+        key={value.name}
         disabled={disabled}
         active={tdColor}
         onClick={() => {
           let { index, data } = cellValues;
-          !disabled
-            && handleOptions &&
-              handleOptions(index, data, value.name, shipType, value)
-           
+          
+          tdColor !== colors.blue && handleOptions(index, data, value.name, shipType, value);
         }}
       >
         <span></span>
@@ -117,20 +108,22 @@ const Board = ({
       <StyledMainSquare>
         <table>
           <thead>
-            <th></th>
-            {letterColumns.map((letter, i) => {
-              return (
-                <th>
-                  <span>{letter.name}</span>
-                </th>
-              );
-            })}
+            <tr>
+              <th></th>
+              {letterColumns.map((letter, i) => {
+                return (
+                  <th key={letter.name}>
+                    <span>{letter.name}</span>
+                  </th>
+                );
+              })}
+            </tr>
           </thead>
           <tbody>
             {numberRows.map((number, numberIndex) => {
               return (
-                <tr>
-                  {number.name}
+                <tr key={number.name}>
+                  <th>{number.name}</th>
                   {letterColumns.map((letter, letterIndex) => {
                     let value = {
                       name: `${letter.name}${number.name}`,
@@ -143,7 +136,7 @@ const Board = ({
                         `${letter.nextValue}${number.name}`,
                         `${letter.name}${number.nextValue}`,
                       ],
-                      color: "grey",
+                      color: colors.grey,
                       marked: false,
                       isSelected: false,
                     };
@@ -185,7 +178,7 @@ Board.propTypes = {
   handleOptions: PropTypes.func,
   selectedValues: PropTypes.array.isRequired,
   orientation: PropTypes.string,
-  shipType: PropTypes.string.isRequired,
+  shipType: PropTypes.object.isRequired,
   setTotalBoardValues: PropTypes.func.isRequired,
   disabled: PropTypes.bool,
 };

@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
+import { colors, messages } from "../../utils/constants";
 import ContentWrapper from "../../components/contentWrapper";
 import Board from "../../components/board";
 import Modal from "../../components/modal";
@@ -11,6 +12,8 @@ import {
   setInitialCPUGameOption,
   setCpuBoardValues,
   setSelectedCPUGameOption,
+  resetSelectedUserGameOption,
+  resetSelectedCPUGameOption,
 } from "../../redux/actions/";
 
 const Game = ({
@@ -22,6 +25,8 @@ const Game = ({
   setInitialCPUGameOption,
   setInitialUserGameOption,
   setSelectedCPUGameOption,
+  resetSelectedUserGameOption,
+  resetSelectedCPUGameOption,
   userSelection,
   boardValues,
   cpuBoardValues,
@@ -34,6 +39,7 @@ const Game = ({
   let [successfulShot, setSuccessfullShot] = useState([]);
   let [posibleShot, setPosibleShot] = useState([]);
   let [failedShot, setFailedShot] = useState([]);
+  let [gameFinished, setGameFinished] = useState(false);
 
   const randomPosition = (localBoardValues) => {
     // fn to generate a random position
@@ -59,7 +65,8 @@ const Game = ({
     let { cpuSelection, position } = randomPosition(localBoardValues);
     let posibleValues = [];
 
-    if (successfulShot.length) { //a)if there are sucfesfullShots...
+    if (successfulShot.length) {
+      //a)if there are sucfesfullShots...
       posibleValues =
         posibleShot && posibleShot.length //b).. look for the posibles shots in the next and prev values of each cell...
           ? posibleShot.slice()
@@ -70,11 +77,12 @@ const Game = ({
       posibleValues = posibleShotsFilter(failedShot, posibleValues); //b)..clean the posibleValues
 
       setPosibleShot([...posibleValues]);
-      cpuSelection = {  //c)redefine the cpuSelection local value to test the first option of the posibleValues Array
+      cpuSelection = {
+        //c)redefine the cpuSelection local value to test the first option of the posibleValues Array
         name: posibleValues[0],
         marked: true,
         isSelected: true,
-        color: "grey",
+        color: colors.grey,
       };
 
       position = localBoardValues //d) find the posibleValues position in order to remote it from boardValues and update at the end of the function (line 145)
@@ -83,7 +91,8 @@ const Game = ({
         })
         .indexOf(posibleValues[0]);
 
-      if (successfulShot.length >= 2) { // If the CPU has already clicked twice, find the other values ​​in the initialUserValues array
+      if (successfulShot.length >= 2) {
+        // If the CPU has already clicked twice, find the other values ​​in the initialUserValues array
         cpuSelection = checkCpuSelectionInUserOptions(
           initialUserValues,
           successfulShot
@@ -101,18 +110,18 @@ const Game = ({
     let tempInitialUserValues =
       initialUserTotalValues &&
       initialUserTotalValues.map((value) => {
-        if (value.name === cpuSelection.name && value.color === "green") {
+        if (value.name === cpuSelection.name && value.color === colors.green) {
           exist = true;
 
           setSelectedCPUGameOption(cpuSelection); //update list of succesfull CPU movements
-          setSuccessfullShot([...successfulShot, value]);//update a temporal list of succesfull CPU movements
+          setSuccessfullShot([...successfulShot, value]); //update a temporal list of succesfull CPU movements
           setPosibleShot([]); //clean the posible shots array
 
           return (value = {
             name: value.name,
             marked: true,
             isSelected: true,
-            color: "yellow",
+            color: colors.yellow,
             prevValue: value.prevValue,
             nextValue: value.nextValue,
             orientation: value.orientation,
@@ -128,7 +137,7 @@ const Game = ({
             name: cpuSelection.name,
             marked: true,
             isSelected: true,
-            color: "blue",
+            color: colors.blue,
           },
         ],
       ];
@@ -139,8 +148,9 @@ const Game = ({
 
     if (cpuStoreValues && cpuStoreValues.length >= 15) {
       setShowModal(!showModal);
-      setMessage("Has perdido!");
+      setMessage(messages.cpuWin);
       setInitialCPUGameOption([]);
+      setGameFinished(true);
     }
     localBoardValues.splice(position, 1);
 
@@ -156,8 +166,22 @@ const Game = ({
   useEffect(() => {
     return () => {
       setInitialCPUGameOption([]);
+      setInitialCPUGameOption([]);
+      resetSelectedUserGameOption();
+      resetSelectedCPUGameOption();
+      setInitialUserGameOption([]);
+      setCpuBoardValues([]);
     };
-  }, [setInitialCPUGameOption]);
+  }, [
+    setInitialCPUGameOption,
+    gameFinished,
+    setSelectedUserGameOption,
+    setInitialUserGameOption,
+    setCpuBoardValues,
+    setSelectedCPUGameOption,
+    resetSelectedUserGameOption,
+    resetSelectedCPUGameOption,
+  ]);
 
   const handleUserSelection = (...args) => {
     let exist = false;
@@ -173,7 +197,7 @@ const Game = ({
             marked: true,
 
             isSelected: true,
-            color: "yellow",
+            color: colors.yellow,
           });
         } else return value;
       });
@@ -181,14 +205,15 @@ const Game = ({
     if (!exist) {
       tempInitialCpuValues = [
         ...tempInitialCpuValues,
-        ...[{ name: args[4].name, marked: true, color: "blue" }],
+        ...[{ name: args[4].name, marked: true, color: colors.blue }],
       ];
     }
 
     setInitialCPUGameOption(tempInitialCpuValues);
     if (userSelection.length >= 15) {
       setShowModal(!showModal);
-      setMessage("Felicitaciones, Ganaste!");
+      setMessage(messages.userWin);
+      setGameFinished(true);
     }
     setPlayersTurn(!playersTurn);
     handleCpuSelection();
@@ -198,7 +223,7 @@ const Game = ({
     //when cpu touches at least two user squares,
     //it uses this fn to find the other positions
     initialUserValues,
-    userShipTouchedSuccessful,
+    userShipTouchedSuccessful
   ) => {
     let userShipOptions = [];
     for (let userOptions in initialUserValues) {
@@ -264,6 +289,8 @@ const mapDispatchToProps = {
   setInitialCPUGameOption,
   setCpuBoardValues,
   setSelectedCPUGameOption,
+  resetSelectedUserGameOption,
+  resetSelectedCPUGameOption,
 };
 
 Game.defaultProps = {

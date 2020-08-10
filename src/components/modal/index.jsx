@@ -1,7 +1,7 @@
 import React from "react";
 import {Link} from "react-router-dom";
 import {  Modal as SemanticModal, Button as SemanticButton } from "semantic-ui-react";
-import Button from "../button"
+import {labels} from "../../utils/constants";
 
 export default function Modal({ setOpen, open, message }) {
   return (
@@ -11,14 +11,15 @@ export default function Modal({ setOpen, open, message }) {
       onClose={() => setOpen(false)}
       onOpen={() => setOpen(true)}
       size ='mini'
+      closeOnDimmerClick = {false}
+      closeOnDocumentClick = {false}
     >
-      <SemanticModal.Header>{"Wooo"}</SemanticModal.Header>
+      <SemanticModal.Header>{labels.modalTitle}</SemanticModal.Header>
       <SemanticModal.Content>
         {message}
       </SemanticModal.Content>
       <SemanticModal.Actions>
-        <Button color={"red"} onClick={() => setOpen(false)} content={"Cancelar"}/>
-        <SemanticButton color='olive' as={Link} to='/home' onClick={() => setOpen(false)}content={"Volver a jugar?"}/>
+        <SemanticButton color='olive' as={Link} to='/home' onClick={() => setOpen(false)}content={labels.buttonPlayAgain}/>
       </SemanticModal.Actions>
     </SemanticModal>
   );

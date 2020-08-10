@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import {labels} from "../../utils/constants";
 
 const StyledTopBar = styled.div`
   width: 50%;
@@ -19,7 +20,7 @@ const StyledTopBar = styled.div`
 export default function TopBar() {
   return (
     <StyledTopBar>
-      <h1>Battleship game</h1>
+      <h1>{labels.mainTitle}</h1>
       <img src={process.env.PUBLIC_URL + "ship.png"} alt="" />
     </StyledTopBar>
   );

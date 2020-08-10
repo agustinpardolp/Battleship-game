@@ -12,8 +12,6 @@ export const CpuInitialGameOption = (
       return {
         initialCpuValues: payload.initialCpuValues,
       };
-    case types.RESET_NOTIFICATION:
-      return { option: null };
     default:
       return state;
   }
